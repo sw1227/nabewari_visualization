@@ -1,2 +1,2 @@
 # nabewari_visualization
-Flask
+Flaskを使って可視化
