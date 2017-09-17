@@ -3,20 +3,18 @@
 
 <h2>Index!</h2>
 
-aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>
-aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>
-aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>
-aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>
-aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>
-aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>
-aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>
-aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>
-aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>
-aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>
-aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>
-aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>
-aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>
-aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>
-aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>aaaa<br>
+<img src="/static/mixed.jpg"></img>
+
+<p>Mapbox!</p>
+
+<div id='map' style='width: 400px; height: 300px;'></div>
+<script>
+  mapboxgl.accessToken = 'pk.eyJ1Ijoic3cxMjI3IiwiYSI6ImNqN3BjNW0yazA3eGUycW8zODkxdGl2NDYifQ.qVH4mCzjDThGYGG0i6hw6g';
+  var map = new mapboxgl.Map({
+  container: 'map',
+  style: 'mapbox://styles/mapbox/outdoors-v10'
+  });
+</script>
+
 
 {% endblock %}
