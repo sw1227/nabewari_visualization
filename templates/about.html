@@ -1,6 +1,16 @@
 {% extends "layout.html" %}
 {% block content %}
 
-<h2>About!</h2>
+<div id='map' style='width: 1200px; height: 900px;'></div>
+<script>
+  mapboxgl.accessToken = 'pk.eyJ1Ijoic3cxMjI3IiwiYSI6ImNqN3BjNW0yazA3eGUycW8zODkxdGl2NDYifQ.qVH4mCzjDThGYGG0i6hw6g';
+  var map = new mapboxgl.Map({
+  container: 'map',
+  style: 'mapbox://styles/mapbox/dark-v9',
+  center: [139.141714, 35.44587],
+  zoom: 10
+  });
+</script>
+
 
 {% endblock %}

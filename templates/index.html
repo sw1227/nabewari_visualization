@@ -1,20 +1,79 @@
 {% extends "layout.html" %}
 {% block content %}
 
-<h2>Index!</h2>
+<style type="text/css">
+  div.card-deck {
+  margin: 30px;
+  }
+</style>
 
-<img src="/static/mixed.jpg"></img>
+<div class="card-deck">
+  <div class="card">
+    <a href="#hoge">
+      <img class="card-img-top" src="/static/std.jpg" alt="Card image cap">
+    </a>
+    <div class="card-body">
+      <h4 class="card-title">Standard Map</h4>
+      <p class="card-text">This is a longer card.</p>
+      <a href="#" class="btn btn-primary">Go somewhere</a>
+    </div>
+  </div>
+  <div class="card">
+    <a href="#hoge">
+      <img class="card-img-top" src="/static/hill.jpg" alt="Card image cap">
+    </a>
+    <div class="card-body">
+      <h4 class="card-title">Hill Shade Map</h4>
+      <p class="card-text">This card has supporting text.</p>
+      <a href="#" class="btn btn-primary">Go somewhere</a>
+    </div>
+  </div>
+  <div class="card">
+    <a href="#hoge">
+      <img class="card-img-top" src="/static/relief.jpg" alt="Card image cap">
+    </a>
+    <div class="card-body">
+      <h4 class="card-title">Relief Map</h4>
+      <p class="card-text">This is a wider card.</p>
+      <a href="#" class="btn btn-primary">Go somewhere</a>
+    </div>
+  </div>
+</div>
 
-<p>Mapbox!</p>
 
-<div id='map' style='width: 400px; height: 300px;'></div>
-<script>
-  mapboxgl.accessToken = 'pk.eyJ1Ijoic3cxMjI3IiwiYSI6ImNqN3BjNW0yazA3eGUycW8zODkxdGl2NDYifQ.qVH4mCzjDThGYGG0i6hw6g';
-  var map = new mapboxgl.Map({
-  container: 'map',
-  style: 'mapbox://styles/mapbox/outdoors-v10'
-  });
-</script>
+
+<div class="card-deck">
+  <div class="card">
+    <a href="#hoge">
+      <img class="card-img-top" src="/static/std.jpg" alt="Card image cap">
+    </a>
+    <div class="card-body">
+      <h4 class="card-title">Standard Map</h4>
+      <p class="card-text">This is a longer card.</p>
+      <a href="#" class="btn btn-primary">Go somewhere</a>
+    </div>
+  </div>
+  <div class="card">
+    <a href="#hoge">
+      <img class="card-img-top" src="/static/hill.jpg" alt="Card image cap">
+    </a>
+    <div class="card-body">
+      <h4 class="card-title">Hill Shade Map</h4>
+      <p class="card-text">This card has supporting text.</p>
+      <a href="#" class="btn btn-primary">Go somewhere</a>
+    </div>
+  </div>
+  <div class="card">
+    <a href="#hoge">
+      <img class="card-img-top" src="/static/relief.jpg" alt="Card image cap">
+    </a>
+    <div class="card-body">
+      <h4 class="card-title">Relief Map</h4>
+      <p class="card-text">This is a wider card.</p>
+      <a href="#" class="btn btn-primary">Go somewhere</a>
+    </div>
+  </div>
+</div>
 
 
 {% endblock %}
