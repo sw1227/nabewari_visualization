@@ -10,6 +10,13 @@
     <!-- Mapbox -->
     <script src='https://api.mapbox.com/mapbox-gl-js/v0.40.0/mapbox-gl.js'></script>
     <link href='https://api.mapbox.com/mapbox-gl-js/v0.40.0/mapbox-gl.css' rel='stylesheet' />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css"
+	  integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ=="
+	  crossorigin=""/>
+    <!-- Make sure you put this AFTER Leaflet's CSS -->
+    <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"
+	    integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log=="
+	    crossorigin=""></script>
 
     <!-- title -->
     {% if title %}
@@ -34,6 +41,12 @@
 	<ul class="navbar-nav">
 	  <li class="nav-item active">
 	    <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+	  </li>
+	  <li class="nav-item">
+	    <a class="nav-link" href="/mapbox">Mapbox</a>
+	  </li>
+	  <li class="nav-item">
+	    <a class="nav-link" href="/leaflet">Leaflet</a>
 	  </li>
 	  <li class="nav-item">
 	    <a class="nav-link" href="/about">About</a>

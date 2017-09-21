@@ -11,3 +11,13 @@ def index():
 def about():
     title = "About"
     return render_template('about.html', title=title)
+
+@app.route('/mapbox')
+def mapbox():
+    title = "Mapbox"
+    return render_template('mapbox.html', title=title)
+
+@app.route('/leaflet')
+def leaflet():
+    title = "Leaflet"
+    return render_template('leaflet.html', title=title)
