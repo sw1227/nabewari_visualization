@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h3>Relief</h3>
+
+<div id='leaflet_map' style='width: 1200px; height: 900px;'></div>
+<script>
+var leaflet_map = L.map('leaflet_map').setView([35.443905,139.141607], 15);
+
+L.tileLayer('http://cyberjapandata.gsi.go.jp/xyz/relief/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://maps.gsi.go.jp/development/ichiran.html">地理院タイル</a> contributors'
+}).addTo(leaflet_map);
+
+L.marker([35.443905,139.141607]).addTo(leaflet_map)
+    .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
+</script>
+
+{% endblock %}

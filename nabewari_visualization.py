@@ -21,3 +21,9 @@ def mapbox():
 def leaflet():
     title = "Leaflet"
     return render_template('leaflet.html', title=title)
+
+@app.route('/relief')
+def relief():
+    title = "Relief Map"
+    return render_template('relief.html', title=title)
+
