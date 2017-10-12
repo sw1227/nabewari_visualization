@@ -27,3 +27,8 @@ def relief():
     title = "Relief Map"
     return render_template('relief.html', title=title)
 
+@app.route('/points')
+def points():
+    title = "3D Point Cloud"
+    return render_template('points.html', title=title)
+
