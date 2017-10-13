@@ -33,7 +33,7 @@ function init() {
 
     // ----- Helper -----
     // statsをアニメーション中に呼び出すことでフレームレートを表示する
-    stats = initStats();
+//    stats = initStats();
 
     // 座標軸を表示するHelper
 //    var axes = new THREE.AxisHelper(20);
@@ -177,7 +177,7 @@ function createTerrain() {
 // ----- アニメーションのための関数 -----
 // ------------------------------------------------
 function render() {
-    stats.update(); // フレームレート表示用
+//    stats.update(); // フレームレート表示用
     var delta = clock.getDelta();// trackballControls用
 
     
@@ -223,7 +223,7 @@ function initStats() {
     // Align top-left
     stats.domElement.style.position = 'absolute';
     stats.domElement.style.left = '0px';
-    stats.domElement.style.top = '0px';
+    stats.domElement.style.bottom = '0px';
     // HTMLにStats用のdivを作っておく
     document.getElementById("Stats-output").appendChild(stats.domElement);
     return stats;
