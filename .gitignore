@@ -3,3 +3,6 @@
 
 # virtualenv
 venv/
+
+# jupyter
+.ipynb_checkpoints/
