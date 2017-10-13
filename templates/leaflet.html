@@ -3,7 +3,10 @@
 
 <h3>Leaflet Test</h3>
 
-<div id='leaflet_map' style='width: 1200px; height: 900px;'></div>
+
+<div id="leaflet_map" style="width: 1200px; height: 900px;"></div>
+
+<script type="text/javascript" src="/static/bokka_route.geojson"></script>
 <script>
 var leaflet_map = L.map('leaflet_map').setView([35.443905,139.141607], 15);
 
@@ -13,6 +16,9 @@ L.tileLayer('http://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png', {
 
 L.marker([35.443905,139.141607]).addTo(leaflet_map)
     .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
+
+
+L.geoJSON(bokka).addTo(leaflet_map);
 </script>
 
 {% endblock %}
