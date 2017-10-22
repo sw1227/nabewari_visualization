@@ -1,12 +1,25 @@
 {% extends "layout.html" %}
 {% block content %}
 
+<style>
+  #WebGL-output {
+  /* set margin to 0 and overflow to hidden, to go fullscreen */
+  margin: 0;
+  overflow: hidden;
+  background-color: #000000;
+  }
+
+  body{
+  overflow: hidden;
+  }
+</style>
+
 
 <script type="text/javascript" src="/static/data.js"></script>
 
 <!-- Div for Stats Output -->
-<div id="Stats-output">
-</div>
+<!-- <div id="Stats-output"> -->
+<!-- </div> -->
 
 <!-- Div which will hold the Output -->
 <div id="WebGL-output">

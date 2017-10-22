@@ -8,6 +8,8 @@ var step;
 var clock;
 var trackballControls;
 var flyControls;
+var glWidth = window.innerWidth;
+var glHeight = window.innerHeight - $('nav').innerHeight();
 
 // onloadに設定
 window.onload = init;
@@ -79,7 +81,7 @@ function createScene() {
 // Camera
 function createCamera() {
     var camera = new THREE.PerspectiveCamera(45,
-					     window.innerWidth/window.innerHeight,
+					     glWidth/glHeight,
 					     0.1, 1000);
     camera.position.x = -60;
     camera.position.y = 80;
@@ -93,7 +95,7 @@ function createCamera() {
 function createRenderer() {
     var renderer = new THREE.WebGLRenderer();
     renderer.setClearColor(new THREE.Color(0x000000));
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setSize(glWidth, glHeight);
 
     // 影を有効にする
     renderer.shadowMap.enabled = true;
@@ -248,7 +250,9 @@ function createGui() {
 // ------------------------------------------------
 
 function onResize() {
-    camera.aspect = window.innerWidth / window.innerHeight;
+    glWidth = window.innerWidth;
+    glHeight = window.innerHeight - $('nav').innerHeight();
+    camera.aspect = glWidth / glHeight;
     camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setSize(glWidth, glHeight);
 }
