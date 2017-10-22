@@ -75,8 +75,8 @@ function createCamera() {
 					     glWidth/glHeight,
 					     0.1, 1000);
     camera.position.x = -60;
-    camera.position.y = 80;
-    camera.position.z = 60;
+    camera.position.y = 40;
+    camera.position.z = -60;
     camera.lookAt(scene.position);
 
     return camera;
@@ -128,9 +128,10 @@ function createTerrain() {
     var planeGeometry = new THREE.PlaneGeometry(100, 100, // width, height
 						255, 255); // Segments
 
-    for (var i=0; i<planeGeometry.vertices.length; i++) {
-	planeGeometry.vertices[i].setZ(nabewari2[i]);
-    }
+    // アニメーション用にコメントアウト
+    // for (var i=0; i<planeGeometry.vertices.length; i++) {
+    // 	planeGeometry.vertices[i].setZ(nabewari2[i]);
+    // }
 
     planeGeometry.verticesNeedUpdate = true;
     planeGeometry.computeFaceNormals();
@@ -165,14 +166,29 @@ function render() {
     stats.update(); // フレームレート表示用
     var delta = clock.getDelta();// trackballControls用
 
-    
     // マウスで視点移動
     trackballControls.update(delta);
 //    flyControls.update(delta);
 
+    // 点をアニメーション
+    // 0からnabewari2[i]にもっていく
+    max_step = 50;
+    if (step <= max_step){
+//	rate = (Math.tanh(6*(step-max_step/2)/max_step) + 1) / 2.0; // sigmoid
+	rate = 1 - Math.exp(-step/10.0) * Math.cos(Math.PI*step/20.0); // wave
+	console.log(rate);
+	for (var i=0; i<plane.geometry.vertices.length; i++) {
+	    plane.geometry.vertices[i].setZ(nabewari2[i]*rate);
+	}
+	plane.geometry.verticesNeedUpdate = true;
+	plane.geometry.computeFaceNormals();
+    }
+
     // アニメーションにする。setIntervalよりも良い。
     requestAnimationFrame(render);
     renderer.render(scene, camera);
+
+    step += 1;// ほぼ60FPSで回せていれば、60step = 1secのはず
 }
 
 // ------------------------------------------------
@@ -217,7 +233,6 @@ function initStats() {
 // ------------------------------------------------
 // ----- 自動的にリサイズするコールバック関数 -----
 // ------------------------------------------------
-
 function onResize() {
     glWidth = window.innerWidth;
     glHeight = window.innerHeight - $('nav').innerHeight();
