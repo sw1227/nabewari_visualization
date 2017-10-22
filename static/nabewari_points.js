@@ -37,14 +37,6 @@ function init() {
     // statsをアニメーション中に呼び出すことでフレームレートを表示する
     stats = initStats();
 
-    // 座標軸を表示するHelper
-//    var axes = new THREE.AxisHelper(20);
-//    scene.add(axes);
-
-    // GUIから変数の値を変更する
-    controls = new Controls();
-    gui = createGui();
-
     // マウスで視点移動
     trackballControls = createTrackball();
 //    flyControls = createFly();
@@ -61,7 +53,6 @@ function init() {
 
     // アニメーション
     step = 0;
-    // render()でrequestAnimationFrame(render)してアニメーションにする
     render(); 
 }
 
@@ -97,9 +88,6 @@ function createRenderer() {
     renderer.setClearColor(new THREE.Color(0x000000));
     renderer.setSize(glWidth, glHeight);
 
-    // 影を有効にする
-    renderer.shadowMap.enabled = true;
-
     return renderer;
 }
 
@@ -112,7 +100,6 @@ function createLight() {
     
 
     // 2. AmbientLight
-    //    var ambientLight = new THREE.AmbientLight(0x0c0c0c);
     var ambientLight = new THREE.AmbientLight(0xffffff);
     return [ambientLight];
     //    return [spotLight, ambientLight];
@@ -141,7 +128,6 @@ function createTerrain() {
     var planeGeometry = new THREE.PlaneGeometry(100, 100, // width, height
 						255, 255); // Segments
 
-
     for (var i=0; i<planeGeometry.vertices.length; i++) {
 	planeGeometry.vertices[i].setZ(nabewari2[i]);
     }
@@ -163,9 +149,6 @@ function createTerrain() {
     
     //    var plane = THREE.SceneUtils.createMultiMaterialObject(planeGeometry,
     //    [material]);
-
-    // 影を受けられるようにする
-    //    plane.receiveShadow = true;
 
     plane.rotation.x = -0.5 * Math.PI;
     plane.position.x = 0;
@@ -222,7 +205,7 @@ function createFly() {
 function initStats() {
     var stats = new Stats();
     stats.setMode(0); // 0: fps, 1: ms
-    // Align top-left
+    // Align bottom-left
     stats.domElement.style.position = 'relative';
     stats.domElement.style.left = '0px';
     stats.domElement.style.bottom = '0px';
@@ -230,20 +213,6 @@ function initStats() {
     document.getElementById("Stats-output").appendChild(stats.domElement);
     return stats;
 }
-
-// ------------------------------------------------
-// ----- 変数の値をGUIで変更するための関数 -----
-// ------------------------------------------------
-function Controls() {
-
-}
-
-function createGui() {
-    var gui = new dat.GUI();
-
-    return gui;
-}
-
 
 // ------------------------------------------------
 // ----- 自動的にリサイズするコールバック関数 -----
