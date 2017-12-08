@@ -36,3 +36,8 @@ def points():
 def wireframe():
     title = "3D Wire Frame"
     return render_template('wireframe.html', title=title)
+
+@app.route('/gpx')
+def gpx():
+    title = "GPX"
+    return render_template('gpx.html', title=title)
