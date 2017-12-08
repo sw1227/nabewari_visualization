@@ -32,3 +32,7 @@ def points():
     title = "3D Point Cloud"
     return render_template('points.html', title=title)
 
+@app.route('/wireframe')
+def wireframe():
+    title = "3D Wire Frame"
+    return render_template('wireframe.html', title=title)
