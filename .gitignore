@@ -9,3 +9,6 @@ venv/
 
 # pyc
 *.pyc
+
+# mac
+.DS_Store
