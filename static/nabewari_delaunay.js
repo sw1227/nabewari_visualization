@@ -249,9 +249,21 @@ function createNumber() {
 			    pos[1]*100.0/255-50);
 
 	sprite.scale.set(2, 14, 2);
-//	sprite.scale.set(2, 2, 2);
 	scene.add(sprite);
     }
+
+    // 鍋割山荘
+    var textureLoader = new THREE.TextureLoader();
+    var numberMap = textureLoader.load("/static/nabewari_sanso.png");
+    var numberMaterial = new THREE.SpriteMaterial( { map: numberMap, color: 0xffffff} );
+    //var numberMaterial = new THREE.SpriteMaterial( { color: 0xffffff} );
+    var sprite = new THREE.Sprite( numberMaterial );
+    sprite.position.set(gpx_test[gpx_test.length-1]["x"]*100.0/255-50,
+			scaled_z(gpx_test[gpx_test.length-1]["ele"])+8,
+			gpx_test[gpx_test.length-1]["y"]*100.0/255-50);
+
+    sprite.scale.set(2.5, 30, 2.5);
+    scene.add(sprite);
 }
 
 function createTrail() {
