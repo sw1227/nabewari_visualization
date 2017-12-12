@@ -41,3 +41,8 @@ def wireframe():
 def gpx():
     title = "GPX"
     return render_template('gpx.html', title=title)
+
+@app.route('/delaunay')
+def delaunay():
+    title = "Delaunay"
+    return render_template('delaunay.html', title=title)
