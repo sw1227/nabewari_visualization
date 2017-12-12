@@ -29,7 +29,7 @@ function init() {
 
     var lights = createLight(); // 複数のLight
     lights.forEach(function(l) {
-	scene.add(l) // LightはMeshと同様にscene.addする必要がある
+//	scene.add(l) // LightはMeshと同様にscene.addする必要がある
     });
 
 
@@ -41,19 +41,11 @@ function init() {
     trackballControls = createTrackball();
 
     // ----- Mesh -----
-    // 1. Point Cloud
-//    points = createPoints();
-//    scene.add(points);
-    // 2. Wire Frame
-//    wireframe = createWireframe();
-//    scene.add(wireframe);
-    // 3. Trail
+    // 1. Trail
     trail = createTrail();
     scene.add(trail);
-    // 4. Delaunay
-    createDelaunay();
-    //    delaunay = createDelaunay();
-    //    scene.add(delaunay);
+    // 2. Delaunay
+    createDelaunay(); // これだけ関数内でscene.addしちゃっててアレ
 
     // ----- Render -----
     // Rendererの出力をHTMLに追加してRender
@@ -72,7 +64,7 @@ function init() {
 // Scene
 function createScene() {
     var scene = new THREE.Scene();
-    //    scene.fog = new THREE.FogExp2(0xffffff, 0.01);
+    //scene.fog = new THREE.FogExp2(0xffffff, 0.01);
     return scene;
 }
 
@@ -91,7 +83,7 @@ function createCamera() {
 
 // Renderer
 function createRenderer() {
-    var renderer = new THREE.WebGLRenderer();
+    var renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setClearColor(new THREE.Color(0x000000));
     renderer.setSize(glWidth, glHeight);
 
@@ -135,69 +127,7 @@ function scaled_z(z) {
     return (z - 350) / 40.0;
 }
 
-// 地形のPoint Cloud
-function createPoints() {
-    // 平面のGeometry
-    var planeGeometry = new THREE.PlaneGeometry(100, 100, // width, height
-						255, 255); // Segments
-
-    for (var i=0; i<planeGeometry.vertices.length; i++) {
-	planeGeometry.vertices[i].setZ(scaled_z(nabewari_dem[i]));
-    }
-
-    planeGeometry.verticesNeedUpdate = true;
-    planeGeometry.computeFaceNormals();
-
-    // Points
-    var pointsMaterial = new THREE.PointsMaterial({size: 1,
-					     sizeAttenuation: true,
-					     color: 0xffffff,
-					     transparent: true,
-					     blending: THREE.AdditiveBlending,
-					     depthWrite: false,
-					     map: generateSprite()
-					    });
-
-    var plane = new THREE.Points(planeGeometry, pointsMaterial);
-    
-    plane.sortParticles = true;
-
-    plane.rotation.x = -0.5 * Math.PI;
-    plane.position.x = 0;
-    plane.position.y = 0;
-    plane.position.z = 0;
-    
-    return plane;
-}
-
-// 地形のWire Frame
-function createWireframe() {
-    // 平面のGeometry
-    var planeGeometry = new THREE.PlaneGeometry(100, 100, // width, height
-						255, 255); // Segments
-
-    for (var i=0; i<planeGeometry.vertices.length; i++) {
-	planeGeometry.vertices[i].setZ(scaled_z(nabewari_dem[i]));
-    }
-
-    planeGeometry.verticesNeedUpdate = true;
-    planeGeometry.computeFaceNormals();
-
-    var wireframeMaterial = new THREE.MeshBasicMaterial({color: 0x2260ff,
-							 wireframe: true,
-							 transparent: true,
-							 blending: THREE.AdditiveBlending});
-    
-    var plane = new THREE.Mesh(planeGeometry, wireframeMaterial);
-    
-    plane.rotation.x = -0.5 * Math.PI;
-    plane.position.x = 0;
-    plane.position.y = 0;
-    plane.position.z = 0;
-    
-    return plane;
-}
-
+// 周囲の格子点の乗る平面の方程式に基づき、任意の点における高さを計算
 function calc_z(x, y, tile) {
     var z; // return this
     fx = Math.floor(x);
@@ -207,15 +137,16 @@ function calc_z(x, y, tile) {
     if ((x-fx) + (y-fy) < 1) {
 	za = tile[255-fy][fx];
 	z = (zb - za) * (x - fx) + (zc - za) * (y - fy) + za;
-    }else {
+    } else {
 	zd = tile[255-fy-1][fx+1];
 	z = (zd - zc) * (x - fx - 1) + (zd - zb) * (y - fy - 1) + zd;
     }
     return scaled_z(z);
 }
 
+// 単純に左下の格子点のzを採用するversion
 function calc_z_test(x, y, tile) {
-    var z; // return this
+    var z;
     fx = Math.floor(x);
     fy = Math.floor(y);
     return scaled_z(tile[255-fy][fx]);
@@ -233,22 +164,15 @@ function createDelaunay() {
     while (nabewari_dem.length) {
 	nabewari_tile.push(nabewari_dem.splice(0, 256))
     };
-//    nabewari_tile.reverse();
-    console.log(nabewari_tile);
     // (x, y) は -50 to +50であることに注意
-
     for (var i=0; i<num_points; i++) {
 	x = 100*Math.random()-50;
 	y = 100*Math.random()-50;
-	z = calc_z( (x+50)*255.0/100, (y+50)*255.0/100, nabewari_tile);//
+	z = calc_z( (x+50)*255.0/100, (y+50)*255.0/100, nabewari_tile);
 	delaunayGeometry.vertices.push(new THREE.Vector3(x, y, z));
 	points.push([x, y]);
 	points_z.push(z);
     }
-    console.log(points_z);
-    console.log(points);
-//    var delaunayMaterial = new THREE.PointsMaterial( { color: 0x888888 } );
-    //    var delaunayMesh = new THREE.Points(delaunayGeometry, delaunayMaterial);
     var pointsMaterial = new THREE.PointsMaterial({size: 2,
 						   sizeAttenuation: true,
 						   color: 0xffffff,
@@ -259,51 +183,42 @@ function createDelaunay() {
 						  });
 
     var delaunayMesh = new THREE.Points(delaunayGeometry, pointsMaterial);
-
-    
-    // ドロネー三角形分割
-    var delaunay = new delaunator(points);// mapbox/delaunatorを使用。
-    // delaunay.trianglesには頂点のindexが入っている
-    triangles = delaunay.triangles;
-
-    ////////////////////////////
-    // とりあえずcoordinates無視してやっていく
-    for (var i=0; i < triangles.length-1; i++) {
-	if (i%3 != 2){
-	    var testGeom = new THREE.Geometry();
-	    testGeom.vertices.push(new THREE.Vector3(points[triangles[i]][0],
-						     points[triangles[i]][1],
-						     points_z[triangles[i]]));
-	    testGeom.vertices.push(new THREE.Vector3(points[triangles[i+1]][0],
-						     points[triangles[i+1]][1],
-						     points_z[triangles[i+1]]));
-	    var lineMaterial = new THREE.LineBasicMaterial({ color: 0x2260ff,
-//	    var lineMaterial = new THREE.LineBasicMaterial({ color: 0x88aaff,
-							     blending: THREE.AdditiveBlending,
-							     transparent: true,
-							     linewidth: 1 });
-	    var lin = new THREE.Line(testGeom, lineMaterial);
-	    lin.rotation.x = -0.5 * Math.PI;
-	    scene.add(lin);
-	}
-    }
-    console.log(triangles.length);
-    ////////////////////////////
-
-    // 配置
     delaunayMesh.sortParticles = true;
     delaunayMesh.rotation.x =  -0.5 * Math.PI;
     delaunayMesh.position.x = 0;
     delaunayMesh.position.y = 0;
     delaunayMesh.position.z = 0;
     scene.add(delaunayMesh);
-    //return delaunayMesh;
 
-    // Points
-
-//    testGeom2 = testGeom.clone();
-
+    // ドロネー三角形分割
+    var delaunay = new delaunator(points);// mapbox/delaunatorを使用
+    triangles = delaunay.triangles;// 頂点のindexが入っている
     
+    var maxDistance = 10;
+    for (var i=0; i < triangles.length-1; i++) {
+	if (i%3 != 2){
+	    var lineGeometry = new THREE.Geometry();
+	    v1 = new THREE.Vector3(points[triangles[i]][0],
+				   points[triangles[i]][1],
+				   points_z[triangles[i]])
+	    v2 = new THREE.Vector3(points[triangles[i+1]][0],
+				   points[triangles[i+1]][1],
+				   points_z[triangles[i+1]])
+	    // 端の方の長すぎる辺は見ばえが悪いので描画しない
+	    if (v1.distanceTo(v2) < maxDistance) {
+		lineGeometry.vertices.push(v1);
+		lineGeometry.vertices.push(v2);
+		var lineMaterial = new THREE.LineBasicMaterial({ color: 0x2260ff,
+		//var lineMaterial = new THREE.LineBasicMaterial({ color: 0x20407f,
+								 blending: THREE.AdditiveBlending,
+								 transparent: true,
+								 linewidth: 1 });
+		var lineMesh = new THREE.Line(lineGeometry, lineMaterial);
+		lineMesh.rotation.x = -0.5 * Math.PI;
+		scene.add(lineMesh);
+	    }
+	}
+    }
 }
 
 function createTrail() {
