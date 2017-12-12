@@ -46,3 +46,8 @@ def gpx():
 def delaunay():
     title = "Delaunay"
     return render_template('delaunay.html', title=title)
+
+@app.route('/sprite')
+def sprite():
+    title = "Sprite"
+    return render_template('sprite.html', title=title)
