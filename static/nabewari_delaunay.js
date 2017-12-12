@@ -10,6 +10,11 @@ var flyControls;
 var glWidth = window.innerWidth;
 var glHeight = window.innerHeight - $('nav').innerHeight();
 var delaunay;
+// nabewari_demを2Dにする
+var nabewari_tile = [];
+while (nabewari_dem.length) {
+    nabewari_tile.push(nabewari_dem.splice(0, 256))
+};
 
 // onloadに設定
 window.onload = init;
@@ -29,7 +34,7 @@ function init() {
 
     var lights = createLight(); // 複数のLight
     lights.forEach(function(l) {
-//	scene.add(l) // LightはMeshと同様にscene.addする必要がある
+	scene.add(l) // LightはMeshと同様にscene.addする必要がある
     });
 
 
@@ -46,6 +51,8 @@ function init() {
     scene.add(trail);
     // 2. Delaunay
     createDelaunay(); // これだけ関数内でscene.addしちゃっててアレ
+    // 3. Number
+    createNumber();
 
     // ----- Render -----
     // Rendererの出力をHTMLに追加してRender
@@ -159,11 +166,6 @@ function createDelaunay() {
     var points = []; // 各点の[x, y]の配列
     var points_z = []; // 各点のzの配列
 
-    // nabewari_demを2Dにする
-    var nabewari_tile = [];
-    while (nabewari_dem.length) {
-	nabewari_tile.push(nabewari_dem.splice(0, 256))
-    };
     // (x, y) は -50 to +50であることに注意
     for (var i=0; i<num_points; i++) {
 	x = 100*Math.random()-50;
@@ -221,6 +223,37 @@ function createDelaunay() {
     }
 }
 
+function createNumber() {
+    var positions = [[105.06221795547754, 204.77331868093461, 660],
+		     [99.99701333325356, 207.12072599260136, 672.53],
+		     [78.92840296262875, 207.35904092073906, 795.12],
+		     [74.85060740727931, 213.0547383466037, 792.92],
+		     [71.01553777768277, 205.07121354003903, 876.53],
+		     [70.30386536265723, 193.45319981547073, 942.83],
+		     [61.241450192872435, 176.77051365678199, 1038.5],
+		     [63.458994251675904, 163.18568351992872, 1111],
+		     [64.17066666670144, 156.42889862449374, 1156.33]];
+    var names = ["/static/Number2.png", "/static/Number3.png", "/static/Number4.png",
+		 "/static/Number5.png", "/static/Number6.png", "/static/Number7.png",
+		 "/static/Number8.png", "/static/Number9.png", "/static/Number10.png"]
+    for (var i=0; i<positions.length; i++) {
+	pos = positions[i]
+	var textureLoader = new THREE.TextureLoader();
+	var numberMap = textureLoader.load(names[i]);
+	var numberMaterial = new THREE.SpriteMaterial( { map: numberMap, color: 0xffffff} );
+	//var numberMaterial = new THREE.SpriteMaterial( { color: 0xffffff} );
+	var sprite = new THREE.Sprite( numberMaterial );
+	sprite.position.set(pos[0]*100.0/255-50,
+			    //			    calc_z(pos[0], pos[1], nabewari_tile),
+			    scaled_z(pos[2])+5,
+			    pos[1]*100.0/255-50);
+
+	sprite.scale.set(2, 14, 2);
+//	sprite.scale.set(2, 2, 2);
+	scene.add(sprite);
+    }
+}
+
 function createTrail() {
     // 登山道のGeometry
     var geometry = new THREE.Geometry();
@@ -258,12 +291,14 @@ function render() {
 // ----- マウスで視点移動するための関数 -----
 // ------------------------------------------------
 function createTrackball() {
-    trackballControls = new THREE.TrackballControls(camera);
+    //    trackballControls = new THREE.TrackballControls(camera);
+    trackballControls = new THREE.OrbitControls(camera);
     trackballControls.rotateSpeed = 1.0;
     trackballControls.zoomSpeed = 1.0;
     trackballControls.panSpeed = 1.0;
-    trackballControls.staticMoving = true;
-
+//    trackballControls.staticMoving = true;
+    trackballControls.minPolarAngle = 0; // radians
+    trackballControls.maxPolarAngle = Math.PI; // radians
     return trackballControls;
 }
 
