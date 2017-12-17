@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+  #WebGL-output {
+  /* set margin to 0 and overflow to hidden, to go fullscreen */
+  margin: 0;
+  overflow: hidden;
+  background-color: #000000;
+  }
+
+  body{
+  overflow: hidden;
+  }
+
+  #Stats-output {
+  position: fixed;
+  bottom: 0px;
+  left:0px;
+  }
+</style>
+
+
+<script type="text/javascript" src="/static/new_dems.js"></script>
+<script type="text/javascript" src="/static/gpx_test.js"></script>
+
+<!-- Div for Stats Output -->
+<div id="Stats-output">
+</div>
+
+<!-- Div which will hold the Output -->
+<div id="WebGL-output">
+</div>
+
+<!-- Javascript code that runs our Three.js examples -->
+<script type="text/javascript" src="/static/nabewari_heatmap.js"></script>
+
+{% endblock %}

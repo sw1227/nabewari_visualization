@@ -51,3 +51,8 @@ def delaunay():
 def sprite():
     title = "Sprite"
     return render_template('sprite.html', title=title)
+
+@app.route('/heatmap')
+def heatmap():
+    title="Heat map"
+    return render_template('heatmap.html', title=title)
