@@ -11,10 +11,10 @@ var glWidth = window.innerWidth;
 var glHeight = window.innerHeight - $('nav').innerHeight();
 var delaunay;
 // nabewari_demを2Dにする
-// var nabewari_tile = [];
-// while (nabewari_dem.length) {
-//     nabewari_tile.push(nabewari_dem.splice(0, 256))
-// };
+var nabewari_tile = [];
+while (nabewari_dem.length) {
+    nabewari_tile.push(nabewari_dem.splice(0, 256))
+};
 
 // onloadに設定
 window.onload = init;
@@ -50,17 +50,9 @@ function init() {
     trail = createTrail();
     scene.add(trail);
     // 2. Delaunay
-//    createDelaunay(); // これだけ関数内でscene.addしちゃっててアレ
+    createDelaunay(); // これだけ関数内でscene.addしちゃっててアレ
     // 3. Number
     createNumber();
-    // 4. Wire Frame
-    wireframe = createWireframe();
-    scene.add(wireframe);
-    // 5. Map Texture
-    map = createMap();
-    scene.add(map);
-
-
 
     // ----- Render -----
     // Rendererの出力をHTMLに追加してRender
@@ -241,9 +233,9 @@ function createNumber() {
 		     [61.241450192872435, 176.77051365678199, 1038.5],
 		     [63.458994251675904, 163.18568351992872, 1111],
 		     [64.17066666670144, 156.42889862449374, 1156.33]];
-    var names = ["/static/Number2.png", "/static/Number3.png", "/static/Number4.png",
-		 "/static/Number5.png", "/static/Number6.png", "/static/Number7.png",
-		 "/static/Number8.png", "/static/Number9.png", "/static/Number10.png"]
+    var names = ["/static/img/numbers/Number2.png", "/static/img/numbers/Number3.png", "/static/img/numbers/Number4.png",
+		 "/static/img/numbers/Number5.png", "/static/img/numbers/Number6.png", "/static/img/numbers/Number7.png",
+		 "/static/img/numbers/Number8.png", "/static/img/numbers/Number9.png", "/static/img/numbers/Number10.png"]
     for (var i=0; i<positions.length; i++) {
 	pos = positions[i]
 	var textureLoader = new THREE.TextureLoader();
@@ -262,7 +254,7 @@ function createNumber() {
 
     // 鍋割山荘
     var textureLoader = new THREE.TextureLoader();
-    var numberMap = textureLoader.load("/static/nabewari_sanso.png");
+    var numberMap = textureLoader.load("/static/img/nabewari_sanso.png");
     var numberMaterial = new THREE.SpriteMaterial( { map: numberMap, color: 0xffffff} );
     //var numberMaterial = new THREE.SpriteMaterial( { color: 0xffffff} );
     var sprite = new THREE.Sprite( numberMaterial );
@@ -273,56 +265,6 @@ function createNumber() {
     sprite.scale.set(2.5, 30, 2.5);
     scene.add(sprite);
 }
-
-function createWireframe() {
-    // 平面のGeometry
-    var planeGeometry = new THREE.PlaneGeometry(100, 100, // width, height
-						255, 255); // Segments
-
-    for (var i=0; i<planeGeometry.vertices.length; i++) {
-	planeGeometry.vertices[i].setZ(scaled_z(nabewari_dem[i]));
-    }
-
-    planeGeometry.verticesNeedUpdate = true;
-    planeGeometry.computeFaceNormals();
-
-    var wireframeMaterial = new THREE.MeshBasicMaterial({color: 0x2260ff,
-							 wireframe: true,
-							 transparent: true,
-							 blending: THREE.AdditiveBlending});
-    
-    var plane = new THREE.Mesh(planeGeometry, wireframeMaterial);
-    
-    plane.rotation.x = -0.5 * Math.PI;
-    plane.position.x = 0;
-    plane.position.y = 0;
-    plane.position.z = 0;
-    
-    return plane;
-}
-
-// 地図のテクスチャマッピング
-function createMap() {
-    // 平面のGeometry
-    var planeGeometry = new THREE.PlaneGeometry(100, 100, // width, height
-						255, 255); // Segments
-
-    // texture
-    var loader = new THREE.TextureLoader();
-    var mapTexture = loader.load( '/static/nabewari_std.png');
-    var textureMaterial = new THREE.MeshPhongMaterial({map: mapTexture, side: THREE.DoubleSide, color: 0x888888});
-//    var textureMaterial = new THREE.MeshPhongMaterial({ transparent: false, map: THREE.ImageUtils.loadTexture('/static/mixed.jpg') });
-    
-    var plane = new THREE.Mesh(planeGeometry, textureMaterial);
-    
-    plane.rotation.x = -0.5 * Math.PI;
-    plane.position.x = 0;
-    plane.position.y = 0;
-    plane.position.z = 0;
-    
-    return plane;
-}
-
 
 function createTrail() {
     // 登山道のGeometry

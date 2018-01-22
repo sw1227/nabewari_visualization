@@ -46,6 +46,9 @@ function init() {
 //    scene.add(axis);
 
     // ----- Mesh -----
+    // 1. Trail
+//    trail = createTrail();
+//    scene.add(trail);
     // 4. Wire Frame
     wireframe = createWireframe();
     scene.add(wireframe);
@@ -58,13 +61,6 @@ function init() {
     while (nabewari_dem.length) {
 	nabewari_tile.push(nabewari_dem.splice(0, 768))
     };
-
-    // 2. Delaunay
-    createDelaunay(); // これだけ関数内でscene.addしちゃっててアレ
-
-    // 1. Trail
-//    trail = createTrail();
-//    scene.add(trail);
 
     // 3. Number
     createNumber();
@@ -111,8 +107,7 @@ function createCamera() {
 // Renderer
 function createRenderer() {
     //    var renderer = new THREE.WebGLRenderer({ antialias: true });
-    var renderer = new THREE.WebGLRenderer({ antialias: false });
-    //var renderer = new THREE.WebGLRenderer();
+    var renderer = new THREE.WebGLRenderer();
     renderer.setClearColor(new THREE.Color(0x000000));
     renderer.setSize(glWidth, glHeight);
 
@@ -184,7 +179,7 @@ function calc_z_test(x, y, tile) {
 function createDelaunay() {
     // 平面上にランダムに点を配置したGeometry
     var delaunayGeometry = new THREE.Geometry();
-    var num_points = 6000;
+    var num_points = 4000;
     var points = []; // 各点の[x, y]の配列
     var points_z = []; // 各点のzの配列
 
@@ -232,8 +227,7 @@ function createDelaunay() {
 	    if (v1.distanceTo(v2) < maxDistance) {
 		lineGeometry.vertices.push(v1);
 		lineGeometry.vertices.push(v2);
-		//var lineMaterial = new THREE.LineBasicMaterial({ color: 0x2260ff,
-		var lineMaterial = new THREE.LineBasicMaterial({ color: 0x2260aa,
+		var lineMaterial = new THREE.LineBasicMaterial({ color: 0x2260ff,
 		//var lineMaterial = new THREE.LineBasicMaterial({ color: 0x20407f,
 								 blending: THREE.AdditiveBlending,
 								 transparent: true,
@@ -246,32 +240,8 @@ function createDelaunay() {
     }
 }
 
-function createTrail() {
-    // 登山道のGeometry -> タンクの軌道
-    var geometry = new THREE.Geometry();
-    //    for (var p of gpx_test) {
-    for (var p of traj1) {
-	// -50 to +50
-	var x = p["x"]*100.0/767-50;
-	var y = -p["y"]*100.0/767+50;
-	geometry.vertices.push(new THREE.Vector3(x,
-						 y,
-						 calc_z( (x+50)*767.0/100, (y+50)*767.0/100, nabewari_tile)
-						));
-						 //		 scaled_z(p["ele"])));
-    }
-    var lineMaterial = new THREE.LineBasicMaterial({ color: 0xff4444, linewidth: 15 });
-    var line = new THREE.Line(geometry, lineMaterial);
-
-    line.rotation.x =  -0.5 * Math.PI;
-    line.position.x = 0;
-    line.position.y = 0;
-    line.position.z = 0;
-    return line;
-}
-
 function createNumber() {
-    /*
+
     var positions = [[676.2488718219101, 563.09327472373843],
 		     [655.9880533330142, 572.48290397040546],
 		     [571.713611850515, 573.43616368295625],
@@ -281,9 +251,9 @@ function createNumber() {
 		     [500.96580077148974, 451.08205462712795],
 		     [509.8359770067036, 396.74273407971486],
 		     [512.6826666668057, 369.71559449797496]];
-    var names = ["/static/Number2.png", "/static/Number3.png", "/static/Number4.png",
-		 "/static/Number5.png", "/static/Number6.png", "/static/Number7.png",
-		 "/static/Number8.png", "/static/Number9.png", "/static/Number10.png"]
+    var names = ["/static/img/numbers/Number2.png", "/static/img/numbers/Number3.png", "/static/img/numbers/Number4.png",
+		 "/static/img/numbers/Number5.png", "/static/img/numbers/Number6.png", "/static/img/numbers/Number7.png",
+		 "/static/img/numbers/Number8.png", "/static/img/numbers/Number9.png", "/static/img/numbers/Number10.png"]
     for (var i=0; i<positions.length; i++) {
 	pos = positions[i]
 	var textureLoader = new THREE.TextureLoader();
@@ -300,15 +270,15 @@ function createNumber() {
 	sprite.scale.set(2, 14, 2);
 	scene.add(sprite);
     }
-*/
+
     // 鍋割山荘
     var textureLoader = new THREE.TextureLoader();
-    var numberMap = textureLoader.load("/static/nabewari_sanso.png");
+    var numberMap = textureLoader.load("/static/img/nabewari_sanso.png");
     var numberMaterial = new THREE.SpriteMaterial( { map: numberMap, color: 0xffffff} );
     //var numberMaterial = new THREE.SpriteMaterial( { color: 0xffffff} );
     var sprite = new THREE.Sprite( numberMaterial );
     sprite.position.set(506.554322488606*100.0/767-50,
-			scaled_z(gpx_test[gpx_test.length-1]["ele"])+2,
+			scaled_z(gpx_test[gpx_test.length-1]["ele"])+4,
 			223.048505018*100.0/767-50);
 
     sprite.scale.set(2.5, 30, 2.5);
@@ -330,13 +300,8 @@ function createWireframe() {
 
     // texture
     var loader = new THREE.TextureLoader();
-    var mapTexture = loader.load( '/static/traj_png.png');
-    var textureMaterial = new THREE.MeshPhongMaterial({map: mapTexture,
-						       side: THREE.DoubleSide,
-						       transparent: true,
-						       opacity: 0.5,
-						       color: 0xffffff});
-
+    var mapTexture = loader.load( '/static/img/heatmap.png');
+    var textureMaterial = new THREE.MeshPhongMaterial({map: mapTexture, side: THREE.DoubleSide, color: 0xffffff});
 
     var wireframeMaterial = new THREE.MeshBasicMaterial({color: 0x2260ff,
 							 wireframe: true,
@@ -361,7 +326,7 @@ function createMap() {
 
     // texture
     var loader = new THREE.TextureLoader();
-    var mapTexture = loader.load( '/static/std.png');
+    var mapTexture = loader.load( '/static/img/heatmap.png');
     var textureMaterial = new THREE.MeshPhongMaterial({map: mapTexture, side: THREE.DoubleSide, color: 0x888888});
 //    var textureMaterial = new THREE.MeshPhongMaterial({ transparent: false, map: THREE.ImageUtils.loadTexture('/static/mixed.jpg') });
     

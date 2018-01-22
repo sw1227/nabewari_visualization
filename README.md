@@ -1,7 +1,7 @@
 # nabewari_visualization
 Flaskを使って可視化
 
-![screen](png/image.png "screen")
+![screen](fig/image.png "screen")
 
 # Setup
 - virtualenv

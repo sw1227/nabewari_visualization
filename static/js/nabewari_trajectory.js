@@ -3,16 +3,14 @@ var camera;
 var scene;
 var renderer;
 var controls;
-//var stats;
+var stats;
 var clock;
 var trackballControls;
 var flyControls;
 var glWidth = window.innerWidth;
 var glHeight = window.innerHeight - $('nav').innerHeight();
 var delaunay;
-// nabewari_demを2Dにする
-var nabewari_tile = [];
-
+var nabewari_tile;
 
 // onloadに設定
 window.onload = init;
@@ -38,27 +36,41 @@ function init() {
 
     // ----- Helper -----
     // statsをアニメーション中に呼び出すことでフレームレートを表示する
-//    stats = initStats();
+    stats = initStats();
 
     // マウスで視点移動
     trackballControls = createTrackball();
 
+    // Axis
+//     var axis = new THREE.AxisHelper(100);
+//    scene.add(axis);
+
     // ----- Mesh -----
-    // Wireframe
+    // 4. Wire Frame
     wireframe = createWireframe();
     scene.add(wireframe);
+    // 5. Map Texture
+    map = createMap();
+    scene.add(map);
 
-    while (kashiwa.length) {
-	nabewari_tile.push(kashiwa.splice(0, 256))
+    // nabewari_demを2Dにする
+    nabewari_tile = [];
+    while (nabewari_dem.length) {
+	nabewari_tile.push(nabewari_dem.splice(0, 768))
     };
 
-    // Delaunay
+    // 2. Delaunay
     createDelaunay(); // これだけ関数内でscene.addしちゃっててアレ
-    // Number
+
+    // 1. Trail
+//    trail = createTrail();
+//    scene.add(trail);
+
+    // 3. Number
     createNumber();
-    // Map Texture
-    map = createMap();
-//    scene.add(map);
+    // 2. Delaunay
+//    createDelaunay(); // これだけ関数内でscene.addしちゃっててアレ
+
 
 
     // ----- Render -----
@@ -78,7 +90,7 @@ function init() {
 // Scene
 function createScene() {
     var scene = new THREE.Scene();
-    //scene.fog = new THREE.FogExp2(0xffffff, 0.01);
+//    scene.fog = new THREE.FogExp2(0xffffff, 0.01);
     return scene;
 }
 
@@ -87,17 +99,20 @@ function createCamera() {
     var camera = new THREE.PerspectiveCamera(45,
 					     glWidth/glHeight,
 					     0.1, 1000);
-    camera.position.x = -60;
-    camera.position.y = 40;
-    camera.position.z = -60;
-    camera.lookAt(scene.position);
+    camera.position.x = 0;
+    camera.position.y = 20;
+    camera.position.z = 60;
+    pos = new THREE.Vector3(0, 20, 0);
+    camera.lookAt(pos);
 
     return camera;
 }
 
 // Renderer
 function createRenderer() {
-    var renderer = new THREE.WebGLRenderer({ antialias: true });
+    //    var renderer = new THREE.WebGLRenderer({ antialias: true });
+    var renderer = new THREE.WebGLRenderer({ antialias: false });
+    //var renderer = new THREE.WebGLRenderer();
     renderer.setClearColor(new THREE.Color(0x000000));
     renderer.setSize(glWidth, glHeight);
 
@@ -108,8 +123,8 @@ function createRenderer() {
 // Light
 function createLight() {
     // 1. SpotLight
-    //    var spotLight = new THREE.SpotLight(0xffffff);
-    //    spotLight.position.set(0, 100, 0);
+    var spotLight = new THREE.SpotLight(0xffffff);
+    spotLight.position.set(0, 100, 0);
     
 
     // 2. AmbientLight
@@ -138,7 +153,7 @@ function generateSprite() {
 
 // 標高のスケール変換
 function scaled_z(z) {
-    return (z - 5.0)/2.0;
+    return (z - 350) / 40.0;
 }
 
 // 周囲の格子点の乗る平面の方程式に基づき、任意の点における高さを計算
@@ -146,13 +161,13 @@ function calc_z(x, y, tile) {
     var z; // return this
     fx = Math.floor(x);
     fy = Math.floor(y);
-    zb = tile[255-fy][fx+1];
-    zc = tile[255-fy-1][fx];
+    zb = tile[767-fy][fx+1];
+    zc = tile[767-fy-1][fx];
     if ((x-fx) + (y-fy) < 1) {
-	za = tile[255-fy][fx];
+	za = tile[767-fy][fx];
 	z = (zb - za) * (x - fx) + (zc - za) * (y - fy) + za;
     } else {
-	zd = tile[255-fy-1][fx+1];
+	zd = tile[767-fy-1][fx+1];
 	z = (zd - zc) * (x - fx - 1) + (zd - zb) * (y - fy - 1) + zd;
     }
     return scaled_z(z);
@@ -163,13 +178,13 @@ function calc_z_test(x, y, tile) {
     var z;
     fx = Math.floor(x);
     fy = Math.floor(y);
-    return scaled_z(tile[255-fy][fx]);
+    return scaled_z(tile[767-fy][fx]);
 }
 
 function createDelaunay() {
     // 平面上にランダムに点を配置したGeometry
     var delaunayGeometry = new THREE.Geometry();
-    var num_points = 400;
+    var num_points = 6000;
     var points = []; // 各点の[x, y]の配列
     var points_z = []; // 各点のzの配列
 
@@ -177,12 +192,12 @@ function createDelaunay() {
     for (var i=0; i<num_points; i++) {
 	x = 100*Math.random()-50;
 	y = 100*Math.random()-50;
-	z = calc_z( (x+50)*255.0/100, (y+50)*255.0/100, nabewari_tile);
+	z = calc_z( (x+50)*767.0/100, (y+50)*767.0/100, nabewari_tile) + 1;
 	delaunayGeometry.vertices.push(new THREE.Vector3(x, y, z));
 	points.push([x, y]);
 	points_z.push(z);
     }
-    var pointsMaterial = new THREE.PointsMaterial({size: 5,
+    var pointsMaterial = new THREE.PointsMaterial({size: 2,
 						   sizeAttenuation: true,
 						   color: 0xffffff,
 						   transparent: true,
@@ -203,7 +218,7 @@ function createDelaunay() {
     var delaunay = new delaunator(points);// mapbox/delaunatorを使用
     triangles = delaunay.triangles;// 頂点のindexが入っている
     
-    var maxDistance = 40;
+    var maxDistance = 10;
     for (var i=0; i < triangles.length-1; i++) {
 	if (i%3 != 2){
 	    var lineGeometry = new THREE.Geometry();
@@ -217,11 +232,12 @@ function createDelaunay() {
 	    if (v1.distanceTo(v2) < maxDistance) {
 		lineGeometry.vertices.push(v1);
 		lineGeometry.vertices.push(v2);
-		var lineMaterial = new THREE.LineBasicMaterial({ color: 0x2260ff,
+		//var lineMaterial = new THREE.LineBasicMaterial({ color: 0x2260ff,
+		var lineMaterial = new THREE.LineBasicMaterial({ color: 0x2260aa,
 		//var lineMaterial = new THREE.LineBasicMaterial({ color: 0x20407f,
 								 blending: THREE.AdditiveBlending,
 								 transparent: true,
-								 linewidth: 2 });
+								 linewidth: 1 });
 		var lineMesh = new THREE.Line(lineGeometry, lineMaterial);
 		lineMesh.rotation.x = -0.5 * Math.PI;
 		scene.add(lineMesh);
@@ -230,62 +246,52 @@ function createDelaunay() {
     }
 }
 
-function createNumber() {
-    //  柏
-    positions = [[19.77991111107258,38.5597121097],
-		 [-16.13745777776785, 15.536452982860283],
-		 [-17.257031111148535, 25.753388652674403],
-		 [11.016746666609833, 36.950184009720033],
-		 [-2.9346844445171882, 19.635082136301207],
-		 [31.344284444458026, -10.520684474568043]];
-    names = ["/static/kashiwa_sprite.png", "/static/ut_sprite.png",
-	     "/static/stadium_sprite.png", "/static/chiba_sprite.png",
-	     "/static/gan_sprite.png", "/static/tanaka_sprite.png"]
-
-    for (var i=0; i<positions.length; i++) {
-	pos = positions[i];
-	var textureLoader = new THREE.TextureLoader();
-	var numberMap = textureLoader.load(names[i]);
-	var numberMaterial = new THREE.SpriteMaterial( { map: numberMap, color: 0xffffff,
-							 opacity: 0.95} );
-	var sprite = new THREE.Sprite( numberMaterial );
-
-	sprite.position.set(pos[0], 15, pos[1]);
-	sprite.scale.set(2.5, 25, 2.5);
-	scene.add(sprite);
+function createTrail() {
+    // 登山道のGeometry -> タンクの軌道
+    var geometry = new THREE.Geometry();
+    //    for (var p of gpx_test) {
+    for (var p of traj1) {
+	// -50 to +50
+	var x = p["x"]*100.0/767-50;
+	var y = -p["y"]*100.0/767+50;
+	geometry.vertices.push(new THREE.Vector3(x,
+						 y,
+						 calc_z( (x+50)*767.0/100, (y+50)*767.0/100, nabewari_tile)
+						));
+						 //		 scaled_z(p["ele"])));
     }
+    var lineMaterial = new THREE.LineBasicMaterial({ color: 0xff4444, linewidth: 15 });
+    var line = new THREE.Line(geometry, lineMaterial);
+
+    line.rotation.x =  -0.5 * Math.PI;
+    line.position.x = 0;
+    line.position.y = 0;
+    line.position.z = 0;
+    return line;
 }
 
+function createNumber() {
+    // 鍋割山荘
+    var textureLoader = new THREE.TextureLoader();
+    var numberMap = textureLoader.load("/static/img/nabewari_sanso.png");
+    var numberMaterial = new THREE.SpriteMaterial( { map: numberMap, color: 0xffffff} );
+    //var numberMaterial = new THREE.SpriteMaterial( { color: 0xffffff} );
+    var sprite = new THREE.Sprite( numberMaterial );
+    sprite.position.set(506.554322488606*100.0/767-50,
+			scaled_z(gpx_test[gpx_test.length-1]["ele"])+2,
+			223.048505018*100.0/767-50);
 
-// 地図のテクスチャマッピング
-function createMap() {
-    // 平面のGeometry
-    var planeGeometry = new THREE.PlaneGeometry(100, 100, // width, height
-						255, 255); // Segments
-
-    // texture
-    var loader = new THREE.TextureLoader();
-    var mapTexture = loader.load( '/static/kashiwa_map.png');
-    var textureMaterial = new THREE.MeshPhongMaterial({map: mapTexture, side: THREE.DoubleSide, color: 0xaaaaaa});
-//    var textureMaterial = new THREE.MeshPhongMaterial({ transparent: false, map: THREE.ImageUtils.loadTexture('/static/mixed.jpg') });
-    
-    var plane = new THREE.Mesh(planeGeometry, textureMaterial);
-    
-    plane.rotation.x = -0.5 * Math.PI;
-    plane.position.x = 0;
-    plane.position.y = 0;
-    plane.position.z = 0;
-    
-    return plane;
+    sprite.scale.set(2.5, 30, 2.5);
+    scene.add(sprite);
 }
 
 function createWireframe() {
     // 平面のGeometry
     var planeGeometry = new THREE.PlaneGeometry(100, 100, // width, height
-						255, 255); // Segments
+						767, 767); // Segments
 
     for (var i=0; i<planeGeometry.vertices.length; i++) {
-	planeGeometry.vertices[i].setZ(scaled_z(kashiwa[i])-1);
+	planeGeometry.vertices[i].setZ(scaled_z(nabewari_dem[i]));
     }
 
     planeGeometry.verticesNeedUpdate = true;
@@ -294,11 +300,13 @@ function createWireframe() {
 
     // texture
     var loader = new THREE.TextureLoader();
-    var mapTexture = loader.load( '/static/kashiwa_map.png');
+    var mapTexture = loader.load( '/static/traj_png.png');
     var textureMaterial = new THREE.MeshPhongMaterial({map: mapTexture,
 						       side: THREE.DoubleSide,
-						       transparent: false,
-						       color: 0x888888});
+						       transparent: true,
+						       opacity: 0.5,
+						       color: 0xffffff});
+
 
     var wireframeMaterial = new THREE.MeshBasicMaterial({color: 0x2260ff,
 							 wireframe: true,
@@ -315,13 +323,33 @@ function createWireframe() {
     return plane;
 }
 
+// 地図のテクスチャマッピング
+function createMap() {
+    // 平面のGeometry
+    var planeGeometry = new THREE.PlaneGeometry(100, 100, // width, height
+						767, 767); // Segments
 
+    // texture
+    var loader = new THREE.TextureLoader();
+    var mapTexture = loader.load( '/static/img/std.png');
+    var textureMaterial = new THREE.MeshPhongMaterial({map: mapTexture, side: THREE.DoubleSide, color: 0x888888});
+//    var textureMaterial = new THREE.MeshPhongMaterial({ transparent: false, map: THREE.ImageUtils.loadTexture('/static/mixed.jpg') });
+    
+    var plane = new THREE.Mesh(planeGeometry, textureMaterial);
+    
+    plane.rotation.x = -0.5 * Math.PI;
+    plane.position.x = 0;
+    plane.position.y = 0;
+    plane.position.z = 0;
+    
+    return plane;
+}
 
 // ------------------------------------------------
 // ----- アニメーションのための関数 -----
 // ------------------------------------------------
 function render() {
-//    stats.update(); // フレームレート表示用
+    stats.update(); // フレームレート表示用
     var delta = clock.getDelta();// trackballControls用
 
     // マウスで視点移動

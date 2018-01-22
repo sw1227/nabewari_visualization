@@ -203,7 +203,7 @@ function createMap() {
 
     // texture
     var loader = new THREE.TextureLoader();
-    var mapTexture = loader.load( '/static/nabewari_std.png');
+    var mapTexture = loader.load( '/static/img/nabewari_std.png');
     var textureMaterial = new THREE.MeshPhongMaterial({map: mapTexture, side: THREE.DoubleSide, color: 0x888888});
 //    var textureMaterial = new THREE.MeshPhongMaterial({ transparent: false, map: THREE.ImageUtils.loadTexture('/static/mixed.jpg') });
     
