@@ -56,3 +56,13 @@ def sprite():
 def heatmap():
     title="Heat map"
     return render_template('heatmap.html', title=title)
+
+@app.route('/trajectory')
+def trajectory():
+    title="Trajectory"
+    return render_template('trajectory.html', title=title)
+
+@app.route('/kashiwa_delaunay')
+def kashiwa_delaunay():
+    title="Kashiwa delaunay"
+    return render_template('kashiwa_delaunay.html', title=title)
