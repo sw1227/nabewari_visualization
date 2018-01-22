@@ -24,22 +24,20 @@ function init() {
     
     // ----- Scene, Camera, Renderer Lightが基本的な構成要素となる -----
     scene = createScene(); // Scene
-    camera = createCamera(); // Camera
-    renderer = createRenderer(); // Renderr
+    camera = createCamera(-60, 40, -60, scene.position, glWidth/glHeight); // Camera
+    renderer = createRenderer(glWidth, glHeight); // Renderer
 
-    var lights = createLight(); // 複数のLight
-    lights.forEach(function(l) {
-	scene.add(l) // LightはMeshと同様にscene.addする必要がある
-    });
+    var ambientLight = createAmbientLight(0xffffff);
+    scene.add(ambientLight);
 
 
     // ----- Helper -----
     // statsをアニメーション中に呼び出すことでフレームレートを表示する
-    stats = initStats();
+    stats = createStats();
 
     // マウスで視点移動
     trackballControls = createTrackball();
-//    flyControls = createFly();
+
 
     // ----- Mesh -----
     // Mesh 1: 地形
@@ -57,70 +55,9 @@ function init() {
 }
 
 
-
 // ------------------------------------------------
 // ----- 各要素を生成する関数 -----
 // ------------------------------------------------
-
-// Scene
-function createScene() {
-    var scene = new THREE.Scene();
-    //    scene.fog = new THREE.FogExp2(0xffffff, 0.01);
-    return scene;
-}
-
-// Camera
-function createCamera() {
-    var camera = new THREE.PerspectiveCamera(45,
-					     glWidth/glHeight,
-					     0.1, 1000);
-    camera.position.x = -60;
-    camera.position.y = 40;
-    camera.position.z = -60;
-    camera.lookAt(scene.position);
-
-    return camera;
-}
-
-// Renderer
-function createRenderer() {
-    var renderer = new THREE.WebGLRenderer();
-    renderer.setClearColor(new THREE.Color(0x000000));
-    renderer.setSize(glWidth, glHeight);
-
-    return renderer;
-}
-
-
-// Light
-function createLight() {
-    // 1. SpotLight
-    //    var spotLight = new THREE.SpotLight(0xffffff);
-    //    spotLight.position.set(0, 100, 0);
-    
-
-    // 2. AmbientLight
-    var ambientLight = new THREE.AmbientLight(0xffffff);
-    return [ambientLight];
-    //    return [spotLight, ambientLight];
-}
-
-function generateSprite() {
-    var canvas = document.createElement('canvas');
-    canvas.width = 16;
-    canvas.height = 16;
-    var context = canvas.getContext('2d');
-    var gradient = context.createRadialGradient(canvas.width / 2, canvas.height / 2, 0, canvas.width / 2, canvas.height / 2, canvas.width / 2);
-    gradient.addColorStop(0, 'rgba(255,255,255,1)');
-    gradient.addColorStop(0.2, 'rgba(0,255,255,1)');
-    gradient.addColorStop(0.4, 'rgba(0,0,64,1)');
-    gradient.addColorStop(1, 'rgba(0,0,0,1)');
-    context.fillStyle = gradient;
-    context.fillRect(0, 0, canvas.width, canvas.height);
-    var texture = new THREE.Texture(canvas);
-    texture.needsUpdate = true;
-    return texture;
-}
 
 // 地形
 function createTerrain() {
@@ -176,7 +113,6 @@ function render() {
     if (step <= max_step){
 //	rate = (Math.tanh(6*(step-max_step/2)/max_step) + 1) / 2.0; // sigmoid
 	rate = 1 - Math.exp(-step/10.0) * Math.cos(Math.PI*step/20.0); // wave
-	console.log(rate);
 	for (var i=0; i<plane.geometry.vertices.length; i++) {
 	    plane.geometry.vertices[i].setZ(nabewari2[i]*rate);
 	}
@@ -191,44 +127,6 @@ function render() {
     step += 1;// ほぼ60FPSで回せていれば、60step = 1secのはず
 }
 
-// ------------------------------------------------
-// ----- マウスで視点移動するための関数 -----
-// ------------------------------------------------
-function createTrackball() {
-    trackballControls = new THREE.TrackballControls(camera);
-    trackballControls.rotateSpeed = 1.0;
-    trackballControls.zoomSpeed = 1.0;
-    trackballControls.panSpeed = 1.0;
-    trackballControls.staticMoving = true;
-
-    return trackballControls;
-}
-
-function createFly() {
-    flyControls = new THREE.FlyControls(camera);
-    flyControls.movementSpeed = 2;
-    flyControls.domElement = document.querySelector("#WebGL-output");
-    flyControls.rollSpeed = Math.PI / 48;
-    flyControls.autoForward = true;
-    flyControls.dragToLook = false;
-
-    return flyControls;
-}
-
-// ------------------------------------------------
-// ----- フレームレートを表示するための関数 -----
-// ------------------------------------------------
-function initStats() {
-    var stats = new Stats();
-    stats.setMode(0); // 0: fps, 1: ms
-    // Align bottom-left
-    stats.domElement.style.position = 'relative';
-    stats.domElement.style.left = '0px';
-    stats.domElement.style.bottom = '0px';
-    // HTMLにStats用のdivを作っておく
-    document.getElementById("Stats-output").appendChild(stats.domElement);
-    return stats;
-}
 
 // ------------------------------------------------
 // ----- 自動的にリサイズするコールバック関数 -----
