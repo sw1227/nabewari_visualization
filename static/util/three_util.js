@@ -29,6 +29,17 @@ function createTrackball() {
     return trackballControls;
 }
 
+function createOrbit() {
+    var orbitControls = new THREE.OrbitControls(camera);
+    orbitControls.rotateSpeed = 1.0;
+    orbitControls.zoomSpeed = 1.0;
+    orbitControls.panSpeed = 1.0;
+
+    orbitControls.minPolarAngle = 0; // radians
+    orbitControls.maxPolarAngle = Math.PI; // radians
+    return orbitControls;
+}
+
 function createFly() {
     var flyControls = new THREE.FlyControls(camera);
 
@@ -67,8 +78,8 @@ function createCamera(x, y, z, target, aspect) {
 }
 
 // Renderer
-function createRenderer(width, height) {
-    var renderer = new THREE.WebGLRenderer();
+function createRenderer(width, height, antiAlias=false) {
+    var renderer = new THREE.WebGLRenderer({ antialias: antiAlias });
     renderer.setClearColor(new THREE.Color(0x000000));
     renderer.setSize(width, height);
 
