@@ -301,7 +301,7 @@ function createWireframe() {
     // texture
     var loader = new THREE.TextureLoader();
     var mapTexture = loader.load( '/static/heatmap2.png');
-    var textureMaterial = new THREE.MeshPhongMaterial({map: mapTexture, side: THREE.DoubleSide, color: 0x888888});
+    var textureMaterial = new THREE.MeshPhongMaterial({map: mapTexture, side: THREE.DoubleSide, color: 0xffffff});
 
     var wireframeMaterial = new THREE.MeshBasicMaterial({color: 0x2260ff,
 							 wireframe: true,
