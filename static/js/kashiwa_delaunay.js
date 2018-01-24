@@ -258,10 +258,9 @@ function createWireframe() {
 // ------------------------------------------------
 function render() {
     stats.update(); // フレームレート表示用
-    var delta = clock.getDelta();// orbitControls用
 
     // マウスで視点移動
-    orbitControls.update(delta);
+    orbitControls.update(clock.getDelta());
 
     // アニメーションにする。setIntervalよりも良い。
     requestAnimationFrame(render);

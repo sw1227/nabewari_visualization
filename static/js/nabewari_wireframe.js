@@ -149,10 +149,9 @@ function createMap() {
 // ------------------------------------------------
 function render() {
     stats.update(); // フレームレート表示用
-    var delta = clock.getDelta();// trackballControls用
 
     // マウスで視点移動
-    trackballControls.update(delta);
+    trackballControls.update(clock.getDelta());
 
     // アニメーションにする。setIntervalよりも良い。
     requestAnimationFrame(render);
