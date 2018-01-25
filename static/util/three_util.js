@@ -41,6 +41,7 @@ function createOrbit() {
 
     orbitControls.minPolarAngle = 0; // radians
     orbitControls.maxPolarAngle = Math.PI; // radians
+
     return orbitControls;
 }
 
@@ -131,12 +132,12 @@ function blueLuminary() {
 // @param shape: 点のarrayのshape
 // @texture: 点のテクスチャ
 // @return plane: 点群のMesh
-function createPoints(size, shape, texture) {
+function createPoints(size, shape, texture, pointSize=1.5) {
     // Geometry
     var planeGeometry = new THREE.PlaneGeometry(size[0], size[1], // width, height
 						shape[0], shape[1]); // Segments
     // Material
-    var material = new THREE.PointsMaterial({size: 1.5,
+    var material = new THREE.PointsMaterial({size: pointSize,
 					     sizeAttenuation: true,
 					     color: 0xffffff,
 					     transparent: true,
@@ -147,6 +148,52 @@ function createPoints(size, shape, texture) {
     // Mesh
     var plane = new THREE.Points(planeGeometry, material);
     plane.sortParticles = true;
+
+    // 原点を中心とし、xz平面上に回転する(y軸が上)
+    plane.rotation.x = -0.5 * Math.PI;
+    plane.position.x = 0;
+    plane.position.y = 0;
+    plane.position.z = 0;
+
+    return plane;
+}
+
+// 平面のWire Frameを生成する
+function createWireframe(size, shape) {
+    // Geometry
+    var planeGeometry = new THREE.PlaneGeometry(size[0], size[1], // width, height
+						shape[0], shape[1]); // Segments
+    // Material
+    var wireframeMaterial = new THREE.MeshBasicMaterial({color: 0x2260ff,
+							 wireframe: true,
+							 transparent: true,
+							 side: THREE.DoubleSide,
+							 blending: THREE.AdditiveBlending});
+    // Mesh
+    var plane = new THREE.Mesh(planeGeometry, wireframeMaterial);
+
+    // 原点を中心とし、xz平面上に回転する(y軸が上)
+    plane.rotation.x = -0.5 * Math.PI;
+    plane.position.x = 0;
+    plane.position.y = 0;
+    plane.position.z = 0;
+
+    return plane;
+}
+
+// 画像をテクスチャマッピングした平面を生成する
+function createMap(size, imgPath) {
+    // 平面のGeometry
+    var planeGeometry = new THREE.PlaneGeometry(size[0], size[1], // width, height
+						1, 1); // Segments
+    // texture
+    var loader = new THREE.TextureLoader();
+    var mapTexture = loader.load(imgPath);
+    // Material
+    var textureMaterial = new THREE.MeshPhongMaterial({map: mapTexture, side: THREE.DoubleSide});
+
+    // Mesh
+    var plane = new THREE.Mesh(planeGeometry, textureMaterial);
 
     // 原点を中心とし、xz平面上に回転する(y軸が上)
     plane.rotation.x = -0.5 * Math.PI;
@@ -176,8 +223,6 @@ function updatePoints(pointsMesh, heightArray) {
 }
 
 // 0-1の値を受けて0-1の値を返す感じの関数たち
-//	rate = (Math.tanh(6*(step-max_step/2)/max_step) + 1) / 2.0; // sigmoid
-// 	rate = 1 - Math.exp(-step/10.0) * Math.cos(Math.PI*step/20.0); // wave
 // memo sigmoidやwaveのパラメータによる変化を確認できるツールがあると便利そう
 function sigmoid(alpha) {
     // TODO parametrize
