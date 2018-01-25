@@ -6,23 +6,26 @@ var controls;
 var stats;
 var step;
 var clock;
-var trackballControls;
-var flyControls;
 var demData;
 
 var glWidth = window.innerWidth;
 var glHeight = window.innerHeight - $('nav').innerHeight();
 const MAX_STEP = 50;
 
-// イベントハンドラを指定
-window.onload = init;
-window.addEventListener('resize', onResize, false);
+// 自動的にリサイズする
+window.addEventListener('resize', function() {
+    glWidth = window.innerWidth;
+    glHeight = window.innerHeight - $('nav').innerHeight();
+    camera.aspect = glWidth / glHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(glWidth, glHeight);
+}, false);
 
 
 // ----------------------------------------------
-// ----- ウィンドウのロード時に実行する関数 -----
+// ----- ウィンドウのロード時に呼ばれる関数 -----
 // ----------------------------------------------
-function init() {
+window.onload = function() {
     clock = new THREE.Clock(); // Controls用
 
     // ----- Scene, Camera, Renderer Lightが基本的な構成要素となる -----
@@ -34,7 +37,7 @@ function init() {
 
     // ----- Helper -----
     stats = createStats(); // フレームレート
-    trackballControls = createTrackball(); // マウスで視点移動
+    controls = createTrackball(); // マウスで視点移動
 
     // ----- Mesh -----
     // 地形の点群
@@ -53,17 +56,19 @@ function init() {
 	step = 0;
 	render();
     });
-
 }
 
 
+// --------------------------------------
+// ----- フレームごとに呼ばれる関数 -----
+// --------------------------------------
 function render() {
     stats.update(); // フレームレート表示用
-    trackballControls.update(clock.getDelta()); // マウスで視点移動
+    controls.update(clock.getDelta()); // マウスで視点移動
 
     // 平面から地形へのアニメーション
     if (step <= MAX_STEP){
-	rate = wave(step/MAX_STEP);
+	var rate = wave(step/MAX_STEP);
 	updatePoints(plane, demData.map(function(d) { return rate*d; }));
     }
 
@@ -72,16 +77,4 @@ function render() {
     renderer.render(scene, camera);
 
     step += 1; // ほぼ60FPSで回せていれば、60step = 1secのはず
-}
-
-
-// ------------------------------------------------
-// ----- 自動的にリサイズするコールバック関数 -----
-// ------------------------------------------------
-function onResize() {
-    glWidth = window.innerWidth;
-    glHeight = window.innerHeight - $('nav').innerHeight();
-    camera.aspect = glWidth / glHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(glWidth, glHeight);
 }
