@@ -1,6 +1,8 @@
-// -----------------------------------------------
-// ----- フレームレートを表示するstatsを生成 -----
-// -----------------------------------------------
+// --------------------------------
+// ----- Helperを生成する関数 -----
+// --------------------------------
+
+// フレームレートを表示するstatsを生成
 function createStats() {
     var stats = new Stats();
     stats.setMode(0); // 0: fps, 1: ms
@@ -14,10 +16,12 @@ function createStats() {
     return stats;
 }
 
+// x, y, z軸を生成
+function createAxis(size=100) {
+    return new THREE.AxisHelper(size);
+}
 
-// ---------------------------------------------------
-// ----- マウスで視点移動するためのControlを生成 -----
-// ---------------------------------------------------
+// マウスで視点移動するためのControlを生成
 function createTrackball() {
     var trackballControls = new THREE.TrackballControls(camera);
 
@@ -53,9 +57,9 @@ function createFly() {
 }
 
 
-// ------------------------------------------------
-// ----- 各要素を生成する関数 -----
-// ------------------------------------------------
+// ---------------------------------------------------------------------
+// ----- Scene, Camera, Renderer, Light, Textureなどを生成する関数 -----
+// ---------------------------------------------------------------------
 
 // Scene
 function createScene() {
@@ -98,8 +102,8 @@ function createSpotLight(x, y, z, color) {
     return spotLight;
 }
 
-// 青く光る点
-function generateSprite() {
+// 青く光る点のテクスチャ
+function blueLuminary() {
     var canvas = document.createElement('canvas');
     canvas.width = 16;
     canvas.height = 16;
@@ -115,4 +119,71 @@ function generateSprite() {
     var texture = new THREE.Texture(canvas);
     texture.needsUpdate = true;
     return texture;
+}
+
+
+// ----------------------------------
+// ----- Geometryを生成する関数 -----
+// ----------------------------------
+
+// 平面のPoint Cloudを生成する
+// @param size: 表示サイズ(width, height)
+// @param shape: 点のarrayのshape
+// @texture: 点のテクスチャ
+// @return plane: 点群のMesh
+function createPoints(size, shape, texture) {
+    // Geometry
+    var planeGeometry = new THREE.PlaneGeometry(size[0], size[1], // width, height
+						shape[0], shape[1]); // Segments
+    // Material
+    var material = new THREE.PointsMaterial({size: 1.5,
+					     sizeAttenuation: true,
+					     color: 0xffffff,
+					     transparent: true,
+					     blending: THREE.AdditiveBlending,
+					     depthWrite: false,
+					     map: texture
+					    });
+    // Mesh
+    var plane = new THREE.Points(planeGeometry, material);
+    plane.sortParticles = true;
+
+    // 原点を中心とし、xz平面上に回転する(y軸が上)
+    plane.rotation.x = -0.5 * Math.PI;
+    plane.position.x = 0;
+    plane.position.y = 0;
+    plane.position.z = 0;
+
+    return plane;
+}
+
+
+// --------------------------------------
+// ----- アニメーションのための関数 -----
+// --------------------------------------
+
+// 点群の各点の高さを(破壊的に)修正する
+function updatePoints(pointsMesh, heightArray) {
+    // 長さを確認
+    console.assert(pointsMesh.geometry.vertices.length == heightArray.length,
+		   "updatePoints(): Different length...");
+    // 高さをupdate
+    pointsMesh.geometry.vertices.forEach(function(v, i) {
+	v.setZ(heightArray[i]);
+    });
+    pointsMesh.geometry.verticesNeedUpdate = true;
+    pointsMesh.geometry.computeFaceNormals();
+}
+
+// 0-1の値を受けて0-1の値を返す感じの関数たち
+//	rate = (Math.tanh(6*(step-max_step/2)/max_step) + 1) / 2.0; // sigmoid
+// 	rate = 1 - Math.exp(-step/10.0) * Math.cos(Math.PI*step/20.0); // wave
+// memo sigmoidやwaveのパラメータによる変化を確認できるツールがあると便利そう
+function sigmoid(alpha) {
+    // TODO parametrize
+    return (Math.tanh(6* (alpha-1/2)) + 1) / 2.0;
+}
+function wave(alpha) {
+    // TODO parametrize
+    return 1 - Math.exp(-5*alpha) * Math.cos(Math.PI*2.5*alpha); // wave
 }
