@@ -22,7 +22,7 @@ function createAxis(size=100) {
 }
 
 // マウスで視点移動するためのControlを生成
-function createTrackball() {
+function createTrackball(camera) {
     var trackballControls = new THREE.TrackballControls(camera);
 
     trackballControls.rotateSpeed = 1.0;
@@ -33,7 +33,7 @@ function createTrackball() {
     return trackballControls;
 }
 
-function createOrbit() {
+function createOrbit(camera) {
     var orbitControls = new THREE.OrbitControls(camera);
     orbitControls.rotateSpeed = 1.0;
     orbitControls.zoomSpeed = 1.0;
@@ -45,7 +45,7 @@ function createOrbit() {
     return orbitControls;
 }
 
-function createFly() {
+function createFly(camera) {
     var flyControls = new THREE.FlyControls(camera);
 
     flyControls.movementSpeed = 2;
@@ -182,7 +182,7 @@ function createWireframe(size, shape) {
 }
 
 // 画像をテクスチャマッピングした平面を生成する
-function createMap(size, imgPath) {
+function createMap(size, imgPath, color=0xffffff) {
     // 平面のGeometry
     var planeGeometry = new THREE.PlaneGeometry(size[0], size[1], // width, height
 						1, 1); // Segments
@@ -190,7 +190,8 @@ function createMap(size, imgPath) {
     var loader = new THREE.TextureLoader();
     var mapTexture = loader.load(imgPath);
     // Material
-    var textureMaterial = new THREE.MeshPhongMaterial({map: mapTexture, side: THREE.DoubleSide});
+    var textureMaterial = new THREE.MeshPhongMaterial({map: mapTexture, side: THREE.DoubleSide,
+						       color: color});
 
     // Mesh
     var plane = new THREE.Mesh(planeGeometry, textureMaterial);
@@ -202,6 +203,58 @@ function createMap(size, imgPath) {
     plane.position.z = 0;
 
     return plane;
+}
+
+// 軌跡を描画
+// TODO: データフォーマット記載
+function createTrail(data, scaleFunction) {
+    // 登山道のGeometry
+    var geometry = new THREE.Geometry();
+    data.forEach(function(d) {
+	geometry.vertices.push(new THREE.Vector3(d["x"]*100.0/255-50,
+						 -d["y"]*100.0/255+50,
+						 scaleFunction(d["ele"])));
+    });
+
+    // Material
+    var lineMaterial = new THREE.LineBasicMaterial({color: 0xff4444, linewidth: 1});
+
+    // Mesh
+    var line = new THREE.Line(geometry, lineMaterial);
+
+    // 原点を中心とし、xz平面上に回転する(y軸が上)
+    line.rotation.x =  -0.5 * Math.PI;
+    line.position.x = 0;
+    line.position.y = 0;
+    line.position.z = 0;
+
+    return line;
+}
+
+// 画像のSpriteを生成
+// TODO 要refactoring
+// scaleは画像に応じて良い感じに出来ないの?
+// scaleって名前はfunctionと紛らわしい
+function createSprite(pos, scale, imgPath) {
+    var textureLoader = new THREE.TextureLoader();
+    var texture = textureLoader.load(imgPath);
+    var material = new THREE.SpriteMaterial({map: texture, color: 0xffffff});
+    var sprite = new THREE.Sprite(material);
+    sprite.position.set(pos[0], pos[1], pos[2]);
+    sprite.scale.set(scale[0], scale[1], scale[2]);
+    return sprite;
+}
+
+// jsonDataで与えられた座標・画像パスをもとに複数のSpriteを生成
+function createNumbers(jsonData, scaleFunction) {
+    var numbers = [];
+    jsonData.forEach(function(d) {
+	var sprite = createSprite([d.x, scaleFunction(d.z)+5, d.y],
+				  [2, 14, 2],
+				  d.name);
+	numbers.push(sprite);
+    });
+    return numbers;
 }
 
 
