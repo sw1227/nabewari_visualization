@@ -29,34 +29,30 @@ window.onload = function() {
     // ----- Scene, Camera, Renderer Lightが基本的な構成要素となる -----
     scene = createScene(); // Scene
     camera = createCamera(-60, 40, -60, scene.position, glWidth/glHeight); // Camera
+    scene.add(createAmbientLight(0xffffff)); // Light
     renderer = createRenderer(glWidth, glHeight); // Renderer
-    var ambientLight = createAmbientLight(0xffffff); // Light
-    scene.add(ambientLight);
+    document.getElementById("WebGL-output").appendChild(renderer.domElement);
 
     // ----- Helper -----
     stats = createStats();
-    controls = createTrackball();
+    controls = createTrackball(camera);
 
     // ----- Mesh -----
     // 地形のWireframe
-    wireframe = createWireframe(size=[100, 100], shape=[255, 255]);
+    var wireframe = createWireframe(size=[100, 100], shape=[255, 255]);
     scene.add(wireframe);
     // 地図のテクスチャ
-    map = createMap(size=[100, 100], imgPath='/static/img/mixed.jpg');
-    scene.add(map);
+    var mapPlane = createMap(size=[100, 100], imgPath='/static/img/mixed.jpg');
+    scene.add(mapPlane);
 
-    // ----- Render -----
-    document.getElementById("WebGL-output").appendChild(renderer.domElement);
 
     // 標高データを読み込んでAnimationを開始
     d3.csv("/static/data/dem_test.csv", function(error, data) {
 	if (error) throw error;
 	demData = data.columns.map(function(d) { return +d; });
-
 	updatePoints(wireframe, demData);
 
-	// Animation
-	render();
+	render(); // Animation
     });
 }
 

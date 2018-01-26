@@ -7,6 +7,7 @@ var stats;
 var step;
 var clock;
 var demData;
+var plane;
 
 var glWidth = window.innerWidth;
 var glHeight = window.innerHeight - $('nav').innerHeight();
@@ -31,21 +32,19 @@ window.onload = function() {
     // ----- Scene, Camera, Renderer Lightが基本的な構成要素となる -----
     scene = createScene(); // Scene
     camera = createCamera(-60, 40, -60, scene.position, glWidth/glHeight); // Camera
+    scene.add(createAmbientLight(0xffffff)); // Light
     renderer = createRenderer(glWidth, glHeight); // Renderer
-    var ambientLight = createAmbientLight(0xffffff); // Light
-    scene.add(ambientLight);
+    document.getElementById("WebGL-output").appendChild(renderer.domElement);
 
     // ----- Helper -----
     stats = createStats(); // フレームレート
-    controls = createTrackball(); // マウスで視点移動
+    controls = createTrackball(camera); // マウスで視点移動
 
     // ----- Mesh -----
     // 地形の点群
     plane = createPoints(size=[100, 100], shape=[255, 255], texture=blueLuminary());
     scene.add(plane);
 
-    // ----- Render -----
-    document.getElementById("WebGL-output").appendChild(renderer.domElement);
 
     // 標高データを読み込んでAnimationを開始
     d3.csv("/static/data/dem_test.csv", function(error, data) {
