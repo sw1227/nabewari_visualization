@@ -81,11 +81,12 @@ window.onload = function() {
     });
 
     // 標高データを読み込む
-    d3.csv("/static/data/nabewari_dem.csv", function(error, csvData) {
+    d3.csv("/static/data/small_dem.csv", function(error, csvData) {
 	if (error) throw error;
 	var demData = csvData.columns.map(function(d) { return +d; });
-	updatePoints(wireframe, demData.map(zScale));
+	demData.pop(); // np.savetxt()で末尾に余分な","がつくため削除
 
+	updatePoints(wireframe, demData.map(zScale));
 	render(); // Animation
     });
 }
