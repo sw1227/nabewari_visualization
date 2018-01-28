@@ -39,7 +39,7 @@ window.onload = function() {
     
     // ----- Scene, Camera, Renderer, Lightが基本的な構成要素となる -----
     scene = createScene(); // Scene
-    camera = createCamera(-60, 40, -60, scene.position, glWidth/glHeight); // Camera
+    camera = createCamera(15, 30, 90, scene.position, glWidth/glHeight); // Camera
     scene.add(createAmbientLight(0xffffff)); // Light
     renderer = createRenderer(glWidth, glHeight, antiAlias=true); // Renderer
     document.getElementById("WebGL-output").appendChild(renderer.domElement);

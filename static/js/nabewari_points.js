@@ -22,6 +22,14 @@ window.addEventListener('resize', function() {
     renderer.setSize(glWidth, glHeight);
 }, false);
 
+const tileSize = 100; // 画面内でのタイルの大きさ: tileSize x tileSize
+const tilePixels = 256; // 標高データのピクセル数: tilePixels x tilePixels
+
+// 標高[m]を座標に変換する関数
+function zScale(z) {
+    return (z - 350) / 40.0;
+}
+
 
 // ----------------------------------------------
 // ----- ウィンドウのロード時に呼ばれる関数 -----
@@ -31,7 +39,7 @@ window.onload = function() {
 
     // ----- Scene, Camera, Renderer Lightが基本的な構成要素となる -----
     scene = createScene(); // Scene
-    camera = createCamera(-60, 40, -60, scene.position, glWidth/glHeight); // Camera
+    camera = createCamera(15, 30, 90, scene.position, glWidth/glHeight); // Camera
     scene.add(createAmbientLight(0xffffff)); // Light
     renderer = createRenderer(glWidth, glHeight); // Renderer
     document.getElementById("WebGL-output").appendChild(renderer.domElement);
@@ -42,14 +50,16 @@ window.onload = function() {
 
     // ----- Mesh -----
     // 地形の点群
-    plane = createPoints(size=[100, 100], shape=[255, 255], texture=blueLuminary());
+    plane = createPoints(size=[tileSize, tileSize], shape=[tilePixels-1, tilePixels-1],
+			 texture=blueLuminary());
     scene.add(plane);
 
 
     // 標高データを読み込んでAnimationを開始
-    d3.csv("/static/data/dem_test.csv", function(error, data) {
+    d3.csv("/static/data/small_dem.csv", function(error, data) {
 	if (error) throw error;
-	demData = data.columns.map(function(d) { return +d; });
+	demData = data.columns.map(function(d) { return zScale(+d); });
+	demData.pop(); // np.savetxt()で末尾に余分な","がつくため削除
 
 	// Animation
 	step = 0;

@@ -19,6 +19,14 @@ window.addEventListener('resize', function() {
     renderer.setSize(glWidth, glHeight);
 }, false);
 
+const tileSize = 100; // 画面内でのタイルの大きさ: tileSize x tileSize
+const tilePixels = 256; // 標高データのピクセル数: tilePixels x tilePixels
+
+// 標高[m]を座標に変換する関数
+function zScale(z) {
+    return (z - 350) / 40.0;
+}
+
 
 // ----------------------------------------------
 // ----- ウィンドウのロード時に実行する関数 -----
@@ -26,9 +34,9 @@ window.addEventListener('resize', function() {
 window.onload = function() {
     clock = new THREE.Clock(); // Controls用
     
-    // ----- Scene, Camera, Renderer Lightが基本的な構成要素となる -----
+    // ----- Scene, Camera, Renderer, Lightが基本的な構成要素となる -----
     scene = createScene(); // Scene
-    camera = createCamera(-60, 40, -60, scene.position, glWidth/glHeight); // Camera
+    camera = createCamera(15, 30, 90, scene.position, glWidth/glHeight); // Camera
     scene.add(createAmbientLight(0xffffff)); // Light
     renderer = createRenderer(glWidth, glHeight); // Renderer
     document.getElementById("WebGL-output").appendChild(renderer.domElement);
@@ -39,19 +47,21 @@ window.onload = function() {
 
     // ----- Mesh -----
     // 地形のWireframe
-    var wireframe = createWireframe(size=[100, 100], shape=[255, 255]);
+    var wireframe = createWireframe(size=[tileSize, tileSize], shape=[tilePixels-1, tilePixels-1]);
     scene.add(wireframe);
     // 地図のテクスチャ
-    var mapPlane = createMap(size=[100, 100], imgPath='/static/img/mixed.jpg');
+    var mapPlane = createMap(size=[tileSize, tileSize], shape=[1, 1],
+			     imgPath='/static/img/nabewari_std.png', color=0x888888);
     scene.add(mapPlane);
 
 
-    // 標高データを読み込んでAnimationを開始
-    d3.csv("/static/data/dem_test.csv", function(error, data) {
+    // 標高データを読み込む
+    d3.csv("/static/data/small_dem.csv", function(error, data) {
 	if (error) throw error;
 	demData = data.columns.map(function(d) { return +d; });
-	updatePoints(wireframe, demData);
+	demData.pop(); // np.savetxt()で末尾に余分な","がつくため削除
 
+	updatePoints(wireframe, demData.map(zScale));
 	render(); // Animation
     });
 }
