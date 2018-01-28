@@ -19,8 +19,9 @@ window.addEventListener('resize', function() {
 }, false);
 
 const tileSize = 100; // 画面内でのタイルの大きさ: tileSize x tileSize
-const tilePixels = 768; // 標高データのピクセル数: tilePixels x tilePixels
-const fromTile = [15, 29047, 12929]; // 表示タイル座標群左上のタイル座標
+const tilePixels = 384; // 標高データのピクセル数: tilePixels x tilePixels
+// 表示タイル座標群左上のタイル座標: タイル途中の時は以下のように小数を用いればよい
+const fromTile = [14, 14523.5, 6464.5];
 
 // タイル内でのpixel座標を画面内でのx, yに変換する関数
 var xyScale = xyScale(tileSize, tilePixels);
@@ -75,7 +76,7 @@ window.onload = function() {
     });
 
     // 標高データを読み込む
-    d3.csv("/static/data/heatmap_dem.csv", function(error, csvData) {
+    d3.csv("/static/data/heatmap_dem_small.csv", function(error, csvData) {
 	if (error) throw error;
 	var demData = csvData.columns.map(function(d) { return +d; });
 	demData.pop(); // np.savetxt()で末尾に余分な","がつくため削除
