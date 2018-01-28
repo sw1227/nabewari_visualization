@@ -265,8 +265,8 @@ function createSpritesFromJson(jsonData, spriteSize, xyScale, zScale, fromTile) 
     var sprites = [];
     jsonData.forEach(function(d) {
 	// fromTileを基準としたタイル内でのpixel座標
-	var pixelX = lonToX(d.lon, 15) - 256*fromTile[1];
-	var pixelY = latToY(d.lat, 15) - 256*fromTile[2];
+	var pixelX = lonToX(d.lon, fromTile[0]) - 256*fromTile[1];
+	var pixelY = latToY(d.lat, fromTile[0]) - 256*fromTile[2];
 	var sprite = createSprite([xyScale(pixelX), zScale(d.z)+5, xyScale(pixelY)],
 				  spriteSize, d.name);
 	sprites.push(sprite);
