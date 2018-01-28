@@ -58,7 +58,7 @@ window.onload = function() {
 
     // 登山道番号のデータを読み込む
     d3.json("/static/data/nabewari_numbers.json", function(error, numberJson) {
-	if (error) throw error3;
+	if (error) throw error;
 	var numbers = createNumbers(numberJson, zScale); // 登山道番号のSprite
 	numbers.forEach(function(n) {
 	    scene.add(n);
@@ -67,14 +67,14 @@ window.onload = function() {
 
     // GPXに基づくデータを読み込む
     d3.json("/static/data/nabewari_trail.json", function(error, trailJson) {
-	if (error) throw error2;
+	if (error) throw error;
 	var trail = createTrail(trailJson, zScale); // GPXの軌跡
 	scene.add(trail);
     });
 
     // 標高データを読み込む
     d3.csv("/static/data/nabewari_dem.csv", function(error, csvData) {
-	if (error) throw error1;
+	if (error) throw error;
 	var demData = csvData.columns.map(function(d) { return +d; });
 	updatePoints(wireframe, demData.map(zScale));
 
