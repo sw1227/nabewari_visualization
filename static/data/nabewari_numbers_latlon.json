@@ -1,0 +1,56 @@
+[
+  {
+    "lat": 35.43203333333334,
+    "lon": 139.1488945,
+    "z": 660.0,
+    "name": "/static/img/numbers/Number2.png"
+  },
+  {
+    "lat": 35.431705,
+    "lon": 139.148025,
+    "z": 672.53,
+    "name": "/static/img/numbers/Number3.png"
+  },
+  {
+    "lat": 35.43167166666667,
+    "lon": 139.1444083333333,
+    "z": 795.12,
+    "name": "/static/img/numbers/Number4.png"
+  },
+  {
+    "lat": 35.430875,
+    "lon": 139.1437083333333,
+    "z": 792.92,
+    "name": "/static/img/numbers/Number5.png"
+  },
+  {
+    "lat": 35.43199166666667,
+    "lon": 139.14305,
+    "z": 876.53,
+    "name": "/static/img/numbers/Number6.png"
+  },
+  {
+    "lat": 35.43361666666667,
+    "lon": 139.1429278333333,
+    "z": 942.83,
+    "name": "/static/img/numbers/Number7.png"
+  },
+  {
+    "lat": 35.43595,
+    "lon": 139.1413721666667,
+    "z": 1038.5,
+    "name": "/static/img/numbers/Number8.png"
+  },
+  {
+    "lat": 35.43785,
+    "lon": 139.1417528333333,
+    "z": 1111.0,
+    "name": "/static/img/numbers/Number9.png"
+  },
+  {
+    "lat": 35.438795,
+    "lon": 139.141875,
+    "z": 1156.33,
+    "name": "/static/img/numbers/Number10.png"
+  }
+]

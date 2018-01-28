@@ -181,11 +181,13 @@ function createWireframe(size, shape) {
     return plane;
 }
 
+// TODO createWireframeとcreateMapはmaterialが違うだけ
+
 // 画像をテクスチャマッピングした平面を生成する
-function createMap(size, imgPath, color=0xffffff) {
+function createMap(size, shape, imgPath, color=0xffffff) {
     // 平面のGeometry
     var planeGeometry = new THREE.PlaneGeometry(size[0], size[1], // width, height
-						1, 1); // Segments
+						shape[0], shape[1]); // Segments
     // texture
     var loader = new THREE.TextureLoader();
     var mapTexture = loader.load(imgPath);
@@ -207,6 +209,7 @@ function createMap(size, imgPath, color=0xffffff) {
 
 // 軌跡を描画
 // TODO: データフォーマット記載
+// TODO: latlonベースにする
 function createTrail(data, scaleFunction) {
     // 登山道のGeometry
     var geometry = new THREE.Geometry();
@@ -233,15 +236,14 @@ function createTrail(data, scaleFunction) {
 
 // 画像のSpriteを生成
 // TODO 要refactoring
-// scaleは画像に応じて良い感じに出来ないの?
-// scaleって名前はfunctionと紛らわしい
-function createSprite(pos, scale, imgPath) {
+// sizeは画像に応じて良い感じに出来ないの?
+function createSprite(pos, size, imgPath) {
     var textureLoader = new THREE.TextureLoader();
     var texture = textureLoader.load(imgPath);
     var material = new THREE.SpriteMaterial({map: texture, color: 0xffffff});
     var sprite = new THREE.Sprite(material);
     sprite.position.set(pos[0], pos[1], pos[2]);
-    sprite.scale.set(scale[0], scale[1], scale[2]);
+    sprite.scale.set(size[0], size[1], size[2]);
     return sprite;
 }
 
@@ -255,6 +257,21 @@ function createNumbers(jsonData, scaleFunction) {
 	numbers.push(sprite);
     });
     return numbers;
+}
+
+// jsonDataで与えられた緯度経度・標高・画像パスをもとに複数のSpriteを作成
+// TODO: Json format 記載
+function createSpritesFromJson(jsonData, spriteSize, xyScale, zScale, fromTile) {
+    var sprites = [];
+    jsonData.forEach(function(d) {
+	// fromTileを基準としたタイル内でのpixel座標
+	var pixelX = lonToX(d.lon, 15) - 256*fromTile[1];
+	var pixelY = latToY(d.lat, 15) - 256*fromTile[2];
+	var sprite = createSprite([xyScale(pixelX), zScale(d.z)+5, xyScale(pixelY)],
+				  spriteSize, d.name);
+	sprites.push(sprite);
+    });
+    return sprites;
 }
 
 
@@ -284,4 +301,33 @@ function sigmoid(alpha) {
 function wave(alpha) {
     // TODO parametrize
     return 1 - Math.exp(-5*alpha) * Math.cos(Math.PI*2.5*alpha); // wave
+}
+
+
+// ----------------------------------
+// ----- 位置情報を処理する関数 -----
+// ----------------------------------
+
+// ズームレベルzoomのもとで経度をpixel座標xに変換する
+function lonToX(lon, zoom) {
+    const L = 85.05112878;
+    return 2**(zoom+7) * (1 + lon/180);
+}
+
+// ズームレベルzoomのもとで緯度をpixel座標yに変換する
+function latToY(lat, zoom) {
+    const L = 85.05112878;
+    return 2**(zoom+7) / Math.PI * (- Math.atanh(Math.sin(Math.PI*lat/180.))
+				    + Math.atanh(Math.sin(Math.PI*L/180.)));
+}
+
+// タイル内でのpixel座標を画面内でのx, yに変換する関数を返す関数
+// 正方形を前提とし、原点を中心に配置する
+function xyScale(tileSize, tilePixels) {
+    // カリー化・部分適用
+    var scaleFunction = function(x) {
+	// (0, ..., tilePixels-1) -> (-tileSize/2, ..., +tileSize/2)
+	return x * (tileSize/(tilePixels-1)) - (tileSize/2);
+    };
+    return scaleFunction;
 }
