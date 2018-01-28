@@ -18,7 +18,14 @@ window.addEventListener('resize', function() {
     renderer.setSize(glWidth, glHeight);
 }, false);
 
-// 標高[m]を座標に変換
+const tileSize = 100; // 画面内でのタイルの大きさ: tileSize x tileSize
+const tilePixels = 256; // 標高データのピクセル数: tilePixels x tilePixels
+const fromTile = [13, 7262, 3232]; // 表示タイル座標群左上のタイル座標
+
+// タイル内でのpixel座標を画面内でのx, yに変換する関数
+var xyScale = xyScale(tileSize, tilePixels);
+
+// 標高[m]を座標に変換する関数
 function zScale(z) {
     return (z - 350) / 40.0;
 }
@@ -30,7 +37,7 @@ function zScale(z) {
 window.onload = function() {
     clock = new THREE.Clock(); // Controls用
     
-    // ----- Scene, Camera, Renderer Lightが基本的な構成要素となる -----
+    // ----- Scene, Camera, Renderer, Lightが基本的な構成要素となる -----
     scene = createScene(); // Scene
     camera = createCamera(-60, 40, -60, scene.position, glWidth/glHeight); // Camera
     scene.add(createAmbientLight(0xffffff)); // Light
@@ -43,23 +50,24 @@ window.onload = function() {
 
     // ----- Mesh -----
     // 地形のWireframe
-    var wireframe = createWireframe(size=[100, 100], shape=[255, 255]);
+    var wireframe = createWireframe(size=[tileSize, tileSize], shape=[tilePixels-1, tilePixels-1]);
     scene.add(wireframe);
     // 地図のテクスチャ
-    var mapPlane = createMap(size=[100, 100], imgPath='/static/img/nabewari_std.png',
-			     color=0x888888);
+    var mapPlane = createMap(size=[tileSize, tileSize], shape=[1, 1],
+			     imgPath='/static/img/nabewari_std.png', color=0x888888);
     scene.add(mapPlane);
-    // 鍋割山荘
-    var nabewari = createSprite([61.81884841155261*100.0/255-50,
-			       zScale(1265.65710830688)+8,
-			       121.58329560409766*100.0/255-50],
-			      [2.5, 30, 2.5], "/static/img/nabewari_sanso.png");
-    scene.add(nabewari);
+
+    // 鍋割山荘のデータを読み込む
+    d3.json("/static/data/nabewari_sanso.json", function(error, sansoJson) {
+	if (error) throw error;
+	var sanso = createSpritesFromJson(sansoJson, [2.5, 30, 2.5], xyScale, zScale, fromTile);
+	scene.add(sanso[0]);
+    });
 
     // 登山道番号のデータを読み込む
-    d3.json("/static/data/nabewari_numbers.json", function(error, numberJson) {
+    d3.json("/static/data/nabewari_numbers_latlon.json", function(error, numberJson) {
 	if (error) throw error;
-	var numbers = createNumbers(numberJson, zScale); // 登山道番号のSprite
+	var numbers = createSpritesFromJson(numberJson, [2, 14, 2], xyScale, zScale, fromTile);
 	numbers.forEach(function(n) {
 	    scene.add(n);
 	});
@@ -90,7 +98,7 @@ function render() {
     stats.update();
     controls.update(clock.getDelta());
 
-    // アニメーション
+    // Animation
     requestAnimationFrame(render);
     renderer.render(scene, camera);
 }

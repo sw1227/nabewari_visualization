@@ -235,7 +235,6 @@ function createTrail(data, scaleFunction) {
 }
 
 // 画像のSpriteを生成
-// TODO 要refactoring
 // sizeは画像に応じて良い感じに出来ないの?
 function createSprite(pos, size, imgPath) {
     var textureLoader = new THREE.TextureLoader();
@@ -245,18 +244,6 @@ function createSprite(pos, size, imgPath) {
     sprite.position.set(pos[0], pos[1], pos[2]);
     sprite.scale.set(size[0], size[1], size[2]);
     return sprite;
-}
-
-// jsonDataで与えられた座標・画像パスをもとに複数のSpriteを生成
-function createNumbers(jsonData, scaleFunction) {
-    var numbers = [];
-    jsonData.forEach(function(d) {
-	var sprite = createSprite([d.x, scaleFunction(d.z)+5, d.y],
-				  [2, 14, 2],
-				  d.name);
-	numbers.push(sprite);
-    });
-    return numbers;
 }
 
 // jsonDataで与えられた緯度経度・標高・画像パスをもとに複数のSpriteを作成
