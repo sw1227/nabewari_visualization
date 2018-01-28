@@ -181,6 +181,7 @@ function createWireframe(size, shape) {
     var wireframeMaterial = new THREE.MeshBasicMaterial({color: 0x2260ff,
 							 wireframe: true,
 							 transparent: true,
+							 depthWrite: false,
 							 side: THREE.DoubleSide,
 							 blending: THREE.AdditiveBlending});
     return createPlane(size, shape, wireframeMaterial);
