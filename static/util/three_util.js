@@ -209,27 +209,23 @@ function createMap(size, shape, imgPath, color=0xffffff) {
 
 // 軌跡を描画
 // TODO: データフォーマット記載
-// TODO: latlonベースにする
-function createTrail(data, scaleFunction) {
+function createTrail(jsonData, xyScale, zScale, fromTile, lineColor=0xff4444) {
     // 登山道のGeometry
     var geometry = new THREE.Geometry();
-    data.forEach(function(d) {
-	geometry.vertices.push(new THREE.Vector3(d["x"]*100.0/255-50,
-						 -d["y"]*100.0/255+50,
-						 scaleFunction(d["ele"])));
+
+    // 各地点に対応する頂点をGeometryに追加
+    jsonData.forEach(function(d) {
+	// fromTileを基準としたタイル内でのpixel座標
+	var pixelX = lonToX(d.lon, fromTile[0]) - 256*fromTile[1];
+	var pixelY = latToY(d.lat, fromTile[0]) - 256*fromTile[2];
+	geometry.vertices.push(new THREE.Vector3(xyScale(pixelX), zScale(d.z), xyScale(pixelY)));
     });
 
     // Material
-    var lineMaterial = new THREE.LineBasicMaterial({color: 0xff4444, linewidth: 1});
+    var lineMaterial = new THREE.LineBasicMaterial({color: lineColor, linewidth: 1});
 
     // Mesh
     var line = new THREE.Line(geometry, lineMaterial);
-
-    // 原点を中心とし、xz平面上に回転する(y軸が上)
-    line.rotation.x =  -0.5 * Math.PI;
-    line.position.x = 0;
-    line.position.y = 0;
-    line.position.z = 0;
 
     return line;
 }

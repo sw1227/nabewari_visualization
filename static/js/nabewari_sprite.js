@@ -74,9 +74,9 @@ window.onload = function() {
     });
 
     // GPXに基づくデータを読み込む
-    d3.json("/static/data/nabewari_trail.json", function(error, trailJson) {
+    d3.json("/static/data/nabewari_trail_latlon.json", function(error, trailJson) {
 	if (error) throw error;
-	var trail = createTrail(trailJson, zScale); // GPXの軌跡
+	var trail = createTrail(trailJson, xyScale, zScale, fromTile); // GPXの軌跡
 	scene.add(trail);
     });
 
