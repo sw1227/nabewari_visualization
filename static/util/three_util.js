@@ -158,19 +158,13 @@ function createPoints(size, shape, texture, pointSize=1.5) {
     return plane;
 }
 
-// 平面のWire Frameを生成する
-function createWireframe(size, shape) {
+// 指定された大きさ・セグメント数・materialの平面Meshを生成する
+function createPlane(size, shape, material) {
     // Geometry
     var planeGeometry = new THREE.PlaneGeometry(size[0], size[1], // width, height
 						shape[0], shape[1]); // Segments
-    // Material
-    var wireframeMaterial = new THREE.MeshBasicMaterial({color: 0x2260ff,
-							 wireframe: true,
-							 transparent: true,
-							 side: THREE.DoubleSide,
-							 blending: THREE.AdditiveBlending});
     // Mesh
-    var plane = new THREE.Mesh(planeGeometry, wireframeMaterial);
+    var plane = new THREE.Mesh(planeGeometry, material);
 
     // 原点を中心とし、xz平面上に回転する(y軸が上)
     plane.rotation.x = -0.5 * Math.PI;
@@ -181,30 +175,26 @@ function createWireframe(size, shape) {
     return plane;
 }
 
-// TODO createWireframeとcreateMapはmaterialが違うだけ
+// 平面のWire Frameを生成する
+function createWireframe(size, shape) {
+    // Material
+    var wireframeMaterial = new THREE.MeshBasicMaterial({color: 0x2260ff,
+							 wireframe: true,
+							 transparent: true,
+							 side: THREE.DoubleSide,
+							 blending: THREE.AdditiveBlending});
+    return createPlane(size, shape, wireframeMaterial);
+}
 
 // 画像をテクスチャマッピングした平面を生成する
 function createMap(size, shape, imgPath, color=0xffffff) {
-    // 平面のGeometry
-    var planeGeometry = new THREE.PlaneGeometry(size[0], size[1], // width, height
-						shape[0], shape[1]); // Segments
-    // texture
+    // TextureLoader
     var loader = new THREE.TextureLoader();
-    var mapTexture = loader.load(imgPath);
     // Material
-    var textureMaterial = new THREE.MeshPhongMaterial({map: mapTexture, side: THREE.DoubleSide,
+    var textureMaterial = new THREE.MeshPhongMaterial({map: loader.load(imgPath),
+						       side: THREE.DoubleSide,
 						       color: color});
-
-    // Mesh
-    var plane = new THREE.Mesh(planeGeometry, textureMaterial);
-
-    // 原点を中心とし、xz平面上に回転する(y軸が上)
-    plane.rotation.x = -0.5 * Math.PI;
-    plane.position.x = 0;
-    plane.position.y = 0;
-    plane.position.z = 0;
-
-    return plane;
+    return createPlane(size, shape, textureMaterial);
 }
 
 // 軌跡を描画
