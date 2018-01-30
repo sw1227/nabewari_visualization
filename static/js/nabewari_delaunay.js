@@ -86,7 +86,7 @@ window.onload = function() {
 	};
 
 	// Delaunay
-	var delaunay = createDelaunay([tileSize, tileSize], nabewariTile, 4000, zScale);
+	var delaunay = createDelaunay([tileSize, tileSize], nabewariTile, 4000, xyScale, zScale);
 	delaunay.forEach(function(d) {
 	    scene.add(d);
 	});
