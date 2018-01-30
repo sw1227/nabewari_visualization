@@ -5,245 +5,105 @@ var renderer;
 var controls;
 var stats;
 var clock;
-var trackballControls;
-var flyControls;
+
 var glWidth = window.innerWidth;
 var glHeight = window.innerHeight - $('nav').innerHeight();
-var delaunay;
-// nabewari_demを2Dにする
-var nabewari_tile = [];
-while (nabewari_dem.length) {
-    nabewari_tile.push(nabewari_dem.splice(0, 256))
-};
 
-// onloadに設定
-window.onload = init;
-window.addEventListener('resize', onResize, false);
-
-
-// ------------------------------------------------
-// ----- ウィンドウのロード時に実行する関数 -----
-// ------------------------------------------------
-function init() {
-    clock = new THREE.Clock(); // trackballControls用
-    
-    // ----- Scene, Camera, Renderer Lightが基本的な構成要素となる -----
-    scene = createScene(); // Scene
-    camera = createCamera(-60, 40, -60, scene.position, glWidth/glHeight); // Camera
-    renderer = createRenderer(glWidth, glHeight, antiAlias=true); // Renderr
-
-    var ambientLight = createAmbientLight(0xffffff);
-    scene.add(ambientLight);
-
-
-    // ----- Helper -----
-    // statsをアニメーション中に呼び出すことでフレームレートを表示する
-    stats = createStats();
-
-    // マウスで視点移動
-    trackballControls = createTrackball();
-
-    // ----- Mesh -----
-    // 1. Trail
-    trail = createTrail();
-    scene.add(trail);
-    // 2. Delaunay
-    createDelaunay(); // これだけ関数内でscene.addしちゃっててアレ
-    // 3. Number
-    createNumber();
-
-    // ----- Render -----
-    // Rendererの出力をHTMLに追加してRender
-    document.getElementById("WebGL-output").appendChild(renderer.domElement);
-
-    // アニメーション
-    render(); 
-}
-
-
-
-// ------------------------------------------------
-// ----- 各要素を生成する関数 -----
-// ------------------------------------------------
-
-// 標高のスケール変換
-function scaled_z(z) {
-    return (z - 350) / 40.0;
-}
-
-// 周囲の格子点の乗る平面の方程式に基づき、任意の点における高さを計算
-function calc_z(x, y, tile) {
-    var z; // return this
-    fx = Math.floor(x);
-    fy = Math.floor(y);
-    zb = tile[255-fy][fx+1];
-    zc = tile[255-fy-1][fx];
-    if ((x-fx) + (y-fy) < 1) {
-	za = tile[255-fy][fx];
-	z = (zb - za) * (x - fx) + (zc - za) * (y - fy) + za;
-    } else {
-	zd = tile[255-fy-1][fx+1];
-	z = (zd - zc) * (x - fx - 1) + (zd - zb) * (y - fy - 1) + zd;
-    }
-    return scaled_z(z);
-}
-
-// 単純に左下の格子点のzを採用するversion
-function calc_z_test(x, y, tile) {
-    var z;
-    fx = Math.floor(x);
-    fy = Math.floor(y);
-    return scaled_z(tile[255-fy][fx]);
-}
-
-function createDelaunay() {
-    // 平面上にランダムに点を配置したGeometry
-    var delaunayGeometry = new THREE.Geometry();
-    var num_points = 4000;
-    var points = []; // 各点の[x, y]の配列
-    var points_z = []; // 各点のzの配列
-
-    // (x, y) は -50 to +50であることに注意
-    for (var i=0; i<num_points; i++) {
-	x = 100*Math.random()-50;
-	y = 100*Math.random()-50;
-	z = calc_z( (x+50)*255.0/100, (y+50)*255.0/100, nabewari_tile);
-	delaunayGeometry.vertices.push(new THREE.Vector3(x, y, z));
-	points.push([x, y]);
-	points_z.push(z);
-    }
-    var pointsMaterial = new THREE.PointsMaterial({size: 2,
-						   sizeAttenuation: true,
-						   color: 0xffffff,
-						   transparent: true,
-						   blending: THREE.AdditiveBlending,
-						   depthWrite: false,
-						   map: generateSprite()
-						  });
-
-    var delaunayMesh = new THREE.Points(delaunayGeometry, pointsMaterial);
-    delaunayMesh.sortParticles = true;
-    delaunayMesh.rotation.x =  -0.5 * Math.PI;
-    delaunayMesh.position.x = 0;
-    delaunayMesh.position.y = 0;
-    delaunayMesh.position.z = 0;
-    scene.add(delaunayMesh);
-
-    // ドロネー三角形分割
-    var delaunay = new delaunator(points);// mapbox/delaunatorを使用
-    triangles = delaunay.triangles;// 頂点のindexが入っている
-    
-    var maxDistance = 10;
-    for (var i=0; i < triangles.length-1; i++) {
-	if (i%3 != 2){
-	    var lineGeometry = new THREE.Geometry();
-	    v1 = new THREE.Vector3(points[triangles[i]][0],
-				   points[triangles[i]][1],
-				   points_z[triangles[i]])
-	    v2 = new THREE.Vector3(points[triangles[i+1]][0],
-				   points[triangles[i+1]][1],
-				   points_z[triangles[i+1]])
-	    // 端の方の長すぎる辺は見ばえが悪いので描画しない
-	    if (v1.distanceTo(v2) < maxDistance) {
-		lineGeometry.vertices.push(v1);
-		lineGeometry.vertices.push(v2);
-		var lineMaterial = new THREE.LineBasicMaterial({ color: 0x2260ff,
-		//var lineMaterial = new THREE.LineBasicMaterial({ color: 0x20407f,
-								 blending: THREE.AdditiveBlending,
-								 transparent: true,
-								 linewidth: 1 });
-		var lineMesh = new THREE.Line(lineGeometry, lineMaterial);
-		lineMesh.rotation.x = -0.5 * Math.PI;
-		scene.add(lineMesh);
-	    }
-	}
-    }
-}
-
-function createNumber() {
-    var positions = [[105.06221795547754, 204.77331868093461, 660],
-		     [99.99701333325356, 207.12072599260136, 672.53],
-		     [78.92840296262875, 207.35904092073906, 795.12],
-		     [74.85060740727931, 213.0547383466037, 792.92],
-		     [71.01553777768277, 205.07121354003903, 876.53],
-		     [70.30386536265723, 193.45319981547073, 942.83],
-		     [61.241450192872435, 176.77051365678199, 1038.5],
-		     [63.458994251675904, 163.18568351992872, 1111],
-		     [64.17066666670144, 156.42889862449374, 1156.33]];
-    var names = ["/static/img/numbers/Number2.png", "/static/img/numbers/Number3.png",
-		 "/static/img/numbers/Number4.png", "/static/img/numbers/Number5.png",
-		 "/static/img/numbers/Number6.png", "/static/img/numbers/Number7.png",
-		 "/static/img/numbers/Number8.png", "/static/img/numbers/Number9.png",
-		 "/static/img/numbers/Number10.png"]
-    for (var i=0; i<positions.length; i++) {
-	pos = positions[i]
-	var textureLoader = new THREE.TextureLoader();
-	var numberMap = textureLoader.load(names[i]);
-	var numberMaterial = new THREE.SpriteMaterial( { map: numberMap, color: 0xffffff} );
-	//var numberMaterial = new THREE.SpriteMaterial( { color: 0xffffff} );
-	var sprite = new THREE.Sprite( numberMaterial );
-	sprite.position.set(pos[0]*100.0/255-50,
-			    //			    calc_z(pos[0], pos[1], nabewari_tile),
-			    scaled_z(pos[2])+5,
-			    pos[1]*100.0/255-50);
-
-	sprite.scale.set(2, 14, 2);
-	scene.add(sprite);
-    }
-
-    // 鍋割山荘
-    var textureLoader = new THREE.TextureLoader();
-    var numberMap = textureLoader.load("/static/img/nabewari_sanso.png");
-    var numberMaterial = new THREE.SpriteMaterial( { map: numberMap, color: 0xffffff} );
-    //var numberMaterial = new THREE.SpriteMaterial( { color: 0xffffff} );
-    var sprite = new THREE.Sprite( numberMaterial );
-    sprite.position.set(gpx_test[gpx_test.length-1]["x"]*100.0/255-50,
-			scaled_z(gpx_test[gpx_test.length-1]["ele"])+8,
-			gpx_test[gpx_test.length-1]["y"]*100.0/255-50);
-
-    sprite.scale.set(2.5, 30, 2.5);
-    scene.add(sprite);
-}
-
-function createTrail() {
-    // 登山道のGeometry
-    var geometry = new THREE.Geometry();
-    for (var p of gpx_test) {
-	geometry.vertices.push(new THREE.Vector3(p["x"]*100.0/255-50,
-						 -p["y"]*100.0/255+50,
-						 scaled_z(p["ele"])));
-    }
-    var lineMaterial = new THREE.LineBasicMaterial({ color: 0xff4444, linewidth: 15 });
-    var line = new THREE.Line(geometry, lineMaterial);
-
-    line.rotation.x =  -0.5 * Math.PI;
-    line.position.x = 0;
-    line.position.y = 0;
-    line.position.z = 0;
-    return line;
-}
-
-// ------------------------------------------------
-// ----- アニメーションのための関数 -----
-// ------------------------------------------------
-function render() {
-    stats.update(); // フレームレート表示用
-
-    // マウスで視点移動
-    trackballControls.update(clock.getDelta());
-
-    // アニメーションにする。setIntervalよりも良い。
-    requestAnimationFrame(render);
-    renderer.render(scene, camera);
-}
-
-// ------------------------------------------------
-// ----- 自動的にリサイズするコールバック関数 -----
-// ------------------------------------------------
-function onResize() {
+// 自動的にリサイズする
+window.addEventListener('resize', function() {
     glWidth = window.innerWidth;
     glHeight = window.innerHeight - $('nav').innerHeight();
     camera.aspect = glWidth / glHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(glWidth, glHeight);
+}, false);
+
+const tileSize = 100; // 画面内でのタイルの大きさ: tileSize x tileSize
+const tilePixels = 256; // 標高データのピクセル数: tilePixels x tilePixels
+const fromTile = [13, 7262, 3232]; // 表示タイル座標群左上のタイル座標
+
+// タイル内でのpixel座標を画面内でのx, yに変換する関数
+var xyScale = xyScale(tileSize, tilePixels);
+
+// 標高[m]を座標に変換する関数
+function zScale(z) {
+    return (z - 350) / 40.0;
+}
+
+
+// ------------------------------------------------
+// ----- ウィンドウのロード時に実行する関数 -----
+// ------------------------------------------------
+window.onload = function() {
+    clock = new THREE.Clock(); // Controls用
+    
+    // ----- Scene, Camera, Renderer, Lightが基本的な構成要素となる -----
+    scene = createScene(); // Scene
+    camera = createCamera(15, 30, 90, scene.position, glWidth/glHeight); // Camera
+    scene.add(createAmbientLight(0xffffff)); // Light
+    renderer = createRenderer(glWidth, glHeight, antiAlias=true); // Renderer
+    document.getElementById("WebGL-output").appendChild(renderer.domElement);
+
+    // ----- Helper -----
+    stats = createStats();
+    controls = createTrackball(camera);
+
+    // ----- Mesh -----
+    // 鍋割山荘のデータを読み込む
+    d3.json("/static/data/nabewari_sanso.json", function(error, sansoJson) {
+	if (error) throw error;
+	var sanso = createSpritesFromJson(sansoJson, [2.5, 30, 2.5], xyScale, zScale, fromTile);
+	scene.add(sanso[0]);
+    });
+
+    // 登山道番号のデータを読み込む
+    d3.json("/static/data/nabewari_numbers_latlon.json", function(error, numberJson) {
+	if (error) throw error;
+	var numbers = createSpritesFromJson(numberJson, [2, 14, 2], xyScale, zScale, fromTile);
+	numbers.forEach(function(n) {
+	    scene.add(n);
+	});
+    });
+
+    // GPXに基づくデータを読み込む
+    d3.json("/static/data/nabewari_trail_latlon.json", function(error, trailJson) {
+	if (error) throw error;
+	var trail = createTrail(trailJson, xyScale, zScale, fromTile); // GPXの軌跡
+	scene.add(trail);
+    });
+
+    // 標高データを読み込む
+    d3.csv("/static/data/small_dem.csv", function(error, csvData) {
+	if (error) throw error;
+	var demData = csvData.columns.map(function(d) { return +d; });
+	demData.pop(); // np.savetxt()で末尾に余分な","がつくため削除
+
+	// 標高データを2Dにする
+	// TODO: csvを2Dにしておける？
+	var nabewariTile = [];
+	while (demData.length) {
+	    nabewariTile.push(demData.splice(0, 256))
+	};
+
+	// Delaunay
+	var delaunay = createDelaunay([tileSize, tileSize], nabewariTile, 4000);
+	delaunay.forEach(function(d) {
+	    scene.add(d);
+	});
+
+	render(); // Animation
+    });
+}
+
+
+// --------------------------------------
+// ----- フレームごとに呼ばれる関数 -----
+// --------------------------------------
+function render() {
+    stats.update();
+    controls.update(clock.getDelta());
+
+    // Animation
+    requestAnimationFrame(render);
+    renderer.render(scene, camera);
 }

@@ -158,6 +158,33 @@ function createPoints(size, shape, texture, pointSize=1.5) {
     return plane;
 }
 
+// 座標の配列[[x0, y0, z0], [x1, y1, z1], ...] から点群を生成する
+function createPointsFromArray(pointArray, texture, pointSize=1.5) {
+    // 頂点のGeometry
+    var geometry = new THREE.Geometry();
+
+    pointArray.forEach(function(p) {
+	geometry.vertices.push(new THREE.Vector3(p[0], p[1], p[2]));
+    });
+    var pointsMaterial = new THREE.PointsMaterial({size: pointSize,
+						   sizeAttenuation: true,
+						   color: 0xffffff,
+						   transparent: true,
+						   blending: THREE.AdditiveBlending,
+						   depthWrite: false,
+						   map: texture
+						  });
+
+    var points = new THREE.Points(geometry, pointsMaterial);
+    points.sortParticles = true;
+    points.rotation.x =  -0.5 * Math.PI;
+    points.position.x = 0;
+    points.position.y = 0;
+    points.position.z = 0;
+
+    return points;
+}
+
 // 指定された大きさ・セグメント数・materialの平面Meshを生成する
 function createPlane(size, shape, material) {
     // Geometry
@@ -248,6 +275,62 @@ function createSpritesFromJson(jsonData, spriteSize, xyScale, zScale, fromTile) 
     return sprites;
 }
 
+// 頂点の配列[[x0, y0, z0], [x1, y1, z1], ...] から、ドロネー三角形分割された辺を作成
+function createDelaunayEdge(pointArray, maxDistance, lineColor=0x2260ff) {
+    // ドロネー三角形分割: mapbox/delaunatorを使用
+    var delaunay = new delaunator( pointArray.map(function(d) { return [d[0], d[1]]; }) );
+    var triangles = delaunay.triangles;// 頂点のindexが入っている
+    var meshes = []; // 作成したlineのArray
+
+    for (var i=0; i < triangles.length-1; i++) {
+	if (i%3 != 2){
+	    var lineGeometry = new THREE.Geometry();
+
+	    // THREE.Vector3にはArrayを渡せないため、スプレッド演算子(...)で展開
+	    var v1 = new THREE.Vector3(...pointArray[triangles[i]]);
+	    var v2 = new THREE.Vector3(...pointArray[triangles[i+1]]);
+
+	    // 端の方の長すぎる辺は見ばえが悪いので描画しない
+	    if (v1.distanceTo(v2) < maxDistance) {
+		lineGeometry.vertices.push(v1);
+		lineGeometry.vertices.push(v2);
+		var lineMaterial = new THREE.LineBasicMaterial({ color: lineColor,
+								 blending: THREE.AdditiveBlending,
+								 transparent: true,
+								 depthWrite: false,
+								 linewidth: 1 });
+		var lineMesh = new THREE.Line(lineGeometry, lineMaterial);
+		lineMesh.rotation.x = -0.5 * Math.PI;
+		meshes.push(lineMesh);
+	    }
+	}
+    }
+
+    return meshes;
+ }
+
+// tileで与えられた地形上にランダムに点を配置し、ドロネー三角形分割した辺・点を作成
+function createDelaunay(size, tile, numPoints, maxDistance=10, showPoints=true) {
+    var points = []; // 各点の[x, y, z]の配列
+    var elevation = zInterpolator(tile); // 標高タイルに基づいて任意の地点の標高を求める関数
+
+    // 地形上にランダムに配置された点
+    for (var i=0; i<numPoints; i++) {
+	var x = (tile.length-1) * Math.random(); // pixel座標
+	var y = (tile.length-1) * Math.random(); // pixel座標
+	var z = zScale(elevation(x, y)); // 画面内での座標
+	points.push([xyScale(x), xyScale(y), z]);
+    }
+
+    // ドロネー三角形分割された辺
+    var edges = createDelaunayEdge(points, maxDistance);
+    if (showPoints) {
+	// 頂点
+	var delaunayPoints = createPointsFromArray(points, blueLuminary(), pointSize=2.5);
+	edges.push(delaunayPoints);
+    }
+    return edges;
+}
 
 // --------------------------------------
 // ----- アニメーションのための関数 -----
@@ -304,4 +387,27 @@ function xyScale(tileSize, tilePixels) {
 	return x * (tileSize/(tilePixels-1)) - (tileSize/2);
     };
     return scaleFunction;
+}
+
+// 標高タイルを与えると、格子点以外の任意の点における高さを計算する関数を返す
+function zInterpolator(tile) {
+    var func = function(x, y) {
+	console.assert(tile.length == tile[0].length, "tile is not square!");
+	var maxIndex = tile.length-1;
+
+	fx = Math.floor(x);
+	fy = Math.floor(y);
+	zb = tile[maxIndex-fy][fx+1];
+	zc = tile[maxIndex-fy-1][fx];
+
+	// 周囲の格子点の乗る平面の方程式に基づいて計算
+	if ((x-fx) + (y-fy) < 1) {
+	    za = tile[maxIndex-fy][fx];
+	    return (zb - za) * (x - fx) + (zc - za) * (y - fy) + za;
+	} else {
+	    zd = tile[maxIndex-fy-1][fx+1];
+	    return (zd - zc) * (x - fx - 1) + (zd - zb) * (y - fy - 1) + zd;
+	}
+    };
+    return func;
 }
