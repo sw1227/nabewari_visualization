@@ -310,7 +310,7 @@ function createDelaunayEdge(pointArray, maxDistance, lineColor=0x2260ff) {
  }
 
 // tileで与えられた地形上にランダムに点を配置し、ドロネー三角形分割した辺・点を作成
-function createDelaunay(size, tile, numPoints, maxDistance=10, showPoints=true) {
+function createDelaunay(size, tile, numPoints, zScale, maxDistance=10, showPoints=true) {
     var points = []; // 各点の[x, y, z]の配列
     var elevation = zInterpolator(tile); // 標高タイルに基づいて任意の地点の標高を求める関数
 
