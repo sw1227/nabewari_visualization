@@ -1,6 +1,27 @@
+// -------------------
+// ----- Leaflet -----
+// -------------------
+var leafletMap = L.map('leaflet_map').setView([35.437,139.144], 15);
+
+L.tileLayer('http://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://maps.gsi.go.jp/development/ichiran.html">地理院タイル</a> contributors'
+}).addTo(leafletMap);
+
+var marker = L.marker([35.443905,139.141607]).addTo(leafletMap)
+    .bindPopup('Nabewari hut<br><img width="150" src="/static/bokka_num/nabewari.JPG"><br>');
+
+d3.json("/static/data/bokka_route.geojson", function(error, geojson) {
+    if (error) throw error;
+    L.geoJSON(geojson).addTo(leafletMap);
+});
+
+// --------------
+// ----- d3 -----
+// --------------
+
 // 各グラフ領域のmargin, 大きさ
 var margin = {top: 20, right: 20, bottom: 40, left: 60};
-var width = 800 - margin.left - margin.right;
+var width = 600 - margin.left - margin.right;
 var height = 200 - margin.top - margin.bottom;
 
 var svg = d3.select("#line_chart")
@@ -152,6 +173,7 @@ d3.json("/static/data/nabewari_trail_with_time.json", function(error, data) {
 	eleFocus.select("text").text(formatEle(d.z));
 	latFocus.select("text").text(formatDegree(d.lat));
 	lonFocus.select("text").text(formatDegree(d.lon));
+	marker.setLatLng(L.latLng(d.lat, d.lon));
     }
 
 });
