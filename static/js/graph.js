@@ -61,32 +61,22 @@ d3.json("/static/data/nabewari_trail_with_time.json", function(error, data) {
 
     // ----- Scale -----
     x.domain(d3.extent(data, function(d) { return parseTime(d.time); }));
+
     eleY.domain(d3.extent(data, function(d) { return d.z; }));
     latY.domain(d3.extent(data, function(d) { return d.lat; }));
     lonY.domain(d3.extent(data, function(d) { return d.lon; }));
 
+    // 折れ線グラフを描画
+    drawLine(elevation, data, xAxis, eleYaxis, "Elevation [m]", eleLine);
+    drawLine(latitude, data, xAxis, latYaxis, "Latitude [deg]", latLine);
+    drawLine(longitude, data, xAxis, lonYaxis, "Longitude [deg]", lonLine);
+});
+
+
+// 折れ線グラフを描画する
+function drawLine(selection, data, xAxis, yAxis, yLabel, line) {
     // ----- x Axis -----
-    elevation.append("g")
-	.attr("transform", "translate(0," + height + ")")
-	.call(xAxis)
-      .append("text")
-	.attr("fill", "#000")
-	.attr("text-anchor", "center")
-    	.attr("x", width/2)
-    	.attr("y", 30)
-	.text("Time");
-
-    latitude.append("g")
-	.attr("transform", "translate(0," + height + ")")
-	.call(xAxis)
-      .append("text")
-	.attr("fill", "#000")
-	.attr("text-anchor", "center")
-    	.attr("x", width/2)
-    	.attr("y", 30)
-	.text("Time");
-
-    longitude.append("g")
+    selection.append("g")
 	.attr("transform", "translate(0," + height + ")")
 	.call(xAxis)
       .append("text")
@@ -97,61 +87,23 @@ d3.json("/static/data/nabewari_trail_with_time.json", function(error, data) {
 	.text("Time");
 
     // ----- y Axis -----
-    elevation.append("g")
-      .call(eleYaxis)
+    selection.append("g")
+      .call(yAxis)
     .append("text")
       .attr("fill", "#000")
       .attr("transform", "rotate(-90)")
       .attr("y", 6)
       .attr("dy", "0.71em")
       .attr("text-anchor", "end")
-      .text("Elevation [m]");
-
-    latitude.append("g")
-      .call(latYaxis)
-    .append("text")
-      .attr("fill", "#000")
-      .attr("transform", "rotate(-90)")
-      .attr("y", 6)
-      .attr("dy", "0.71em")
-      .attr("text-anchor", "end")
-      .text("Latitude [deg]");
-
-    longitude.append("g")
-      .call(lonYaxis)
-    .append("text")
-      .attr("fill", "#000")
-      .attr("transform", "rotate(-90)")
-      .attr("y", 6)
-      .attr("dy", "0.71em")
-      .attr("text-anchor", "end")
-      .text("Longitude [deg]");
+      .text(yLabel);
 
     // ----- Line chart -----
-    elevation.append("path")
+    selection.append("path")
       .datum(data)
       .attr("fill", "none")
       .attr("stroke", "steelblue")
       .attr("stroke-linejoin", "round")
       .attr("stroke-linecap", "round")
       .attr("stroke-width", 1.5)
-      .attr("d", eleLine);
-
-    latitude.append("path")
-      .datum(data)
-      .attr("fill", "none")
-      .attr("stroke", "steelblue")
-      .attr("stroke-linejoin", "round")
-      .attr("stroke-linecap", "round")
-      .attr("stroke-width", 1.5)
-      .attr("d", latLine);
-
-    longitude.append("path")
-      .datum(data)
-      .attr("fill", "none")
-      .attr("stroke", "steelblue")
-      .attr("stroke-linejoin", "round")
-      .attr("stroke-linecap", "round")
-      .attr("stroke-width", 1.5)
-      .attr("d", lonLine);
-});
+      .attr("d", line);
+}
