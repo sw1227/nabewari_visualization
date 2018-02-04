@@ -1,0 +1,43 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+  body {
+  background-color: #000;
+  }
+  text {
+  fill: #aaa;
+  }
+  .domain {
+  stroke: #aaa;
+  }
+  line {
+  stroke: #aaa;
+  }
+  .overlay {
+  fill: none;
+  pointer-events: all;
+  }
+  .vertical {
+  stroke: #777;
+  stroke-width: 1;
+  }
+  .focus circle {
+  fill: none;
+  stroke: steelblue;
+  }
+  .focus text {
+  font-size: 80%;
+  }
+  .horizontal {
+  float: left;
+  }
+</style>
+
+<svg id="line_chart" class="horizontal"></svg>
+<div id="WebGL-output" class="horizontal" style="width: 950px; height: 560px; margin: 20px"></div>
+
+<!-- Javascript code -->
+<script type="text/javascript" src="/static/js/3d_graph.js"></script>
+
+{% endblock %}

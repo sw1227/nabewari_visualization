@@ -71,3 +71,8 @@ def kashiwa_delaunay():
 def graph():
     title="Bokka graph"
     return render_template('graph.html', title=title)
+
+@app.route('/3d_graph')
+def graph_3d():
+    title="Graph + 3D"
+    return render_template('3d_graph.html', title=title)
