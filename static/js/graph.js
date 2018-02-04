@@ -1,7 +1,7 @@
 // -------------------
 // ----- Leaflet -----
 // -------------------
-var leafletMap = L.map('leaflet_map').setView([35.437,139.144], 15);
+var leafletMap = L.map('leaflet_map').setView([35.438,139.144], 15);
 
 L.tileLayer('http://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://maps.gsi.go.jp/development/ichiran.html">地理院タイル</a> contributors'
@@ -103,9 +103,9 @@ d3.json("/static/data/nabewari_trail_with_time.json", function(error, data) {
     lonY.domain(d3.extent(data, function(d) { return d.lon; }));
 
     // ----- 折れ線グラフを描画 -----
-    drawLine(elevation, data, xAxis, eleYaxis, "Elevation [m]", eleLine);
-    drawLine(latitude, data, xAxis, latYaxis, "Latitude [deg]", latLine);
-    drawLine(longitude, data, xAxis, lonYaxis, "Longitude [deg]", lonLine);
+    drawLine(elevation, data, xAxis, eleYaxis, "Elevation [m]", eleLine, "steelblue");
+    drawLine(latitude, data, xAxis, latYaxis, "Latitude [deg]", latLine, "coral");
+    drawLine(longitude, data, xAxis, lonYaxis, "Longitude [deg]", lonLine, "mediumseagreen");
 
     // ----- マウスに近い位置のデータに対するフォーカス(折れ線の手前に描画) -----
     var eleFocus = elevation.append("g")
@@ -173,13 +173,16 @@ d3.json("/static/data/nabewari_trail_with_time.json", function(error, data) {
 	latFocus.select("text").text(formatDegree(d.lat));
 	lonFocus.select("text").text(formatDegree(d.lon));
 	marker.setLatLng(L.latLng(d.lat, d.lon));
+	d3.select("p.ele").text("Elevation: " + formatEle(d.z));
+	d3.select("p.lat").text("Lat: " + formatDegree(d.lat));
+	d3.select("p.lon").text("Lon: " + formatDegree(d.lon));
     }
 
 });
 
 
 // 折れ線グラフを描画する
-function drawLine(selection, data, xAxis, yAxis, yLabel, line) {
+function drawLine(selection, data, xAxis, yAxis, yLabel, line, color) {
     // ----- x Axis -----
     selection.append("g")
 	.attr("transform", "translate(0," + height + ")")
@@ -206,7 +209,7 @@ function drawLine(selection, data, xAxis, yAxis, yLabel, line) {
     selection.append("path")
       .datum(data)
       .attr("fill", "none")
-      .attr("stroke", "steelblue")
+      .attr("stroke", color)
       .attr("stroke-linejoin", "round")
       .attr("stroke-linecap", "round")
       .attr("stroke-width", 1.5)

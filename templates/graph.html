@@ -20,11 +20,19 @@
   .horizontal {
   float: left;
   }
-
+  #position_info p {
+  font-size: 80%;
+  line-height: 0.25em;
+  }
 </style>
 
 <svg id="line_chart" class="horizontal"></svg>
-<div id="leaflet_map" class="horizontal" style="width: 400px; height: 560px; margin: 20px"></div>
+<div id="leaflet_map" class="horizontal" style="width: 400px; height: 480px; margin: 20px"></div>
+<div id="position_info" class="horizontal" style="width: 400px; height: 60px; margin-left: 20px">
+  <p class="ele" style="color: steelblue">Elevation: [m]</p>
+  <p class="lat" style="color: coral">Lat: [deg]</p>
+  <p class="lon" style="color: mediumseagreen">Lon: [deg]</p>
+</div>
 
 <!-- Javascript code -->
 <script type="text/javascript" src="/static/js/graph.js"></script>
