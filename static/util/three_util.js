@@ -250,10 +250,10 @@ function createTrail(jsonData, xyScale, zScale, fromTile, lineColor=0xff4444) {
 
 // 画像のSpriteを生成
 // sizeは画像に応じて良い感じに出来ないの?
-function createSprite(pos, size, imgPath) {
+function createSprite(pos, size, imgPath, opacity=1.0) {
     var textureLoader = new THREE.TextureLoader();
     var texture = textureLoader.load(imgPath);
-    var material = new THREE.SpriteMaterial({map: texture, color: 0xffffff});
+    var material = new THREE.SpriteMaterial({map: texture, color: 0xffffff, opacity: opacity});
     var sprite = new THREE.Sprite(material);
     sprite.position.set(pos[0], pos[1], pos[2]);
     sprite.scale.set(size[0], size[1], size[2]);
@@ -262,14 +262,14 @@ function createSprite(pos, size, imgPath) {
 
 // jsonDataで与えられた緯度経度・標高・画像パスをもとに複数のSpriteを作成
 // TODO: Json format 記載
-function createSpritesFromJson(jsonData, spriteSize, xyScale, zScale, fromTile) {
+function createSpritesFromJson(jsonData, spriteSize, xyScale, zScale, fromTile, opacity=1.0) {
     var sprites = [];
     jsonData.forEach(function(d) {
 	// fromTileを基準としたタイル内でのpixel座標
 	var pixelX = lonToX(d.lon, fromTile[0]) - 256*fromTile[1];
 	var pixelY = latToY(d.lat, fromTile[0]) - 256*fromTile[2];
 	var sprite = createSprite([xyScale(pixelX), zScale(d.z)+5, xyScale(pixelY)],
-				  spriteSize, d.name);
+				  spriteSize, d.name, opacity);
 	sprites.push(sprite);
     });
     return sprites;
@@ -310,7 +310,8 @@ function createDelaunayEdge(pointArray, maxDistance, lineColor=0x2260ff) {
  }
 
 // tileで与えられた地形上にランダムに点を配置し、ドロネー三角形分割した辺・点を作成
-function createDelaunay(size, tile, numPoints, xyScale, zScale, maxDistance=10, showPoints=true) {
+function createDelaunay(size, tile, numPoints, xyScale, zScale, maxDistance=10,
+			showPoints=true, pointSize=2.5) {
     var points = []; // 各点の[x, y, z]の配列
     var elevation = zInterpolator(tile); // 標高タイルに基づいて任意の地点の標高を求める関数
 
@@ -326,7 +327,7 @@ function createDelaunay(size, tile, numPoints, xyScale, zScale, maxDistance=10, 
     var edges = createDelaunayEdge(points, maxDistance);
     if (showPoints) {
 	// 頂点
-	var delaunayPoints = createPointsFromArray(points, blueLuminary(), pointSize=2.5);
+	var delaunayPoints = createPointsFromArray(points, blueLuminary(), pointSize=pointSize);
 	edges.push(delaunayPoints);
     }
     return edges;

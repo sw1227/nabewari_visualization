@@ -1,0 +1,38 @@
+[
+  {
+    "lat": 35.893123,
+    "lon": 139.95254,
+    "z": 30,
+    "name": "/static/img/kashiwa/kashiwa_sprite.png"
+  },
+  {
+    "lat": 35.901319,
+    "lon": 139.936756,
+    "z": 30,
+    "name": "/static/img/kashiwa/ut_sprite.png"
+  },
+  {
+    "lat": 35.897682,
+    "lon": 139.936264,
+    "z": 30,
+    "name": "/static/img/kashiwa/stadium_sprite.png"
+  },
+  {
+    "lat": 35.893696,
+    "lon": 139.948689,
+    "z": 30,
+    "name": "/static/img/kashiwa/chiba_sprite.png"
+  },
+  {
+    "lat": 35.89986,
+    "lon": 139.942558,
+    "z": 30,
+    "name": "/static/img/kashiwa/gan_sprite.png"
+  },
+  {
+    "lat": 35.910594,
+    "lon": 139.957622,
+    "z": 30,
+    "name": "/static/img/kashiwa/tanaka_sprite.png"
+  }
+]
