@@ -66,3 +66,8 @@ def trajectory():
 def kashiwa_delaunay():
     title="Kashiwa delaunay"
     return render_template('kashiwa_delaunay.html', title=title)
+
+@app.route('/graph')
+def graph():
+    title="Bokka graph"
+    return render_template('graph.html', title=title)
