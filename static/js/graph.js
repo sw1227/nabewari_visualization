@@ -7,8 +7,7 @@ L.tileLayer('http://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://maps.gsi.go.jp/development/ichiran.html">地理院タイル</a> contributors'
 }).addTo(leafletMap);
 
-var marker = L.marker([35.443905,139.141607]).addTo(leafletMap)
-    .bindPopup('Nabewari hut<br><img width="150" src="/static/bokka_num/nabewari.JPG"><br>');
+var marker = L.marker([35.443905,139.141607]).addTo(leafletMap);
 
 d3.json("/static/data/bokka_route.geojson", function(error, geojson) {
     if (error) throw error;
